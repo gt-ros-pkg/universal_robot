@@ -11,13 +11,24 @@ typedef industrial::tcp_server::TcpServer SimpleServer;
 typedef industrial::udp_server::UdpServer SimpleServer;
 #endif
 
-template <class T>
-int runController(int argc, char** argv)
+#ifdef HARDWARE_CONTROLLER
+#include "ur_ctrl_server/ur_hardware_controller.h"
+#else
+#ifdef TEST_CONTROLLER
+#include "ur_ctrl_server/ur_test_controller.h"
+#else
+#ifdef SIMULATION_CONTROLLER
+#include "ur_ctrl_server/ur_sim_controller.h"
+#endif
+#endif
+#endif
+
+int main(int argc, char** argv)
 {
 
   SimpleServer connection;
   connection.init(UR_COM_PORT);
-  T ur_ctrl(&connection);
+  ur::URController ur_ctrl(&connection);
 
   if(ur_ctrl.initRobot(argc, argv))
     return -1;

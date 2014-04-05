@@ -84,24 +84,36 @@ target_link_libraries(ur_ctrl_base
 
 # build test controller
 add_executable(ur_test_server
-    src/ur_test_server.cpp
     src/ur_test_controller.cpp
     src/run_controller.cpp
 )
 target_link_libraries(ur_test_server ur_ctrl_base)
+set_target_properties(ur_test_server PROPERTIES 
+    COMPILE_DEFINITIONS TEST_CONTROLLER
+)
 
-# build actual controller
-find_package(UR-C-API)
-if( ${UR-C-API_FOUND} )
-    include_directories(${UR-C-API_INCLUDE_DIRS})
-    link_directories(${UR-C-API_INCLUDE_DIRS})
-    add_executable(ur_ctrl_server
-        src/ur_ctrl_server.cpp
-        src/ur_hardware_controller.cpp
-        src/run_controller.cpp
-    )
-    target_link_libraries(ur_ctrl_server ${UR-C-API_LIBRARIES} ur_ctrl_base)
-endif()
+# build simulation controller
+add_executable(ur_sim_server
+    src/ur_sim_controller.cpp
+    src/run_controller.cpp
+)
+target_link_libraries(ur_sim_server ur_ctrl_base)
+set_target_properties(ur_sim_server PROPERTIES 
+    COMPILE_DEFINITIONS SIMULATION_CONTROLLER
+)
+
+# build actual controller (Requires Find_CMakeLists file installed)
+# find_package(UR-C-API)
+# if( ${UR-C-API_FOUND} )
+#     include_directories(${UR-C-API_INCLUDE_DIRS})
+#     link_directories(${UR-C-API_INCLUDE_DIRS})
+#     add_executable(ur_ctrl_server
+#         src/ur_ctrl_server.cpp
+#         src/ur_hardware_controller.cpp
+#         src/run_controller.cpp
+#     )
+#     target_link_libraries(ur_ctrl_server ${UR-C-API_LIBRARIES} ur_ctrl_base)
+# endif()
 
 ## Declare a cpp library
 # add_library(ur_ctrl_server
