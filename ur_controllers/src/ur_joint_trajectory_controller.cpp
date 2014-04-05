@@ -45,16 +45,16 @@ namespace velocity_controllers
           JointTrajectoryController;
 }
 
-// namespace pos_vel_acc_controllers
-// {
-//   /**
-//    * \brief Joint trajectory controller that represents trajectory segments as <b>quintic splines</b> and sends
-//    * commands to an \b position/velocity/acceleration interface.
-//    */
-//   typedef joint_trajectory_controller::JointTrajectoryController<trajectory_interface::QuinticSplineSegment<double>,
-//                                                                  hardware_interface::PosVelAccJointInterface>
-//           JointTrajectoryController;
-// }
+namespace pos_vel_acc_controllers
+{
+  /**
+   * \brief Joint trajectory controller that represents trajectory segments as <b>quintic splines</b> and sends
+   * commands to an \b position/velocity/acceleration interface.
+   */
+  typedef joint_trajectory_controller::JointTrajectoryController<trajectory_interface::QuinticSplineSegment<double>,
+                                                                 hardware_interface::PosVelAccJointInterface>
+          JointTrajectoryController;
+}
 
 PLUGINLIB_EXPORT_CLASS(velocity_controllers::JointTrajectoryController, controller_interface::ControllerBase)
-// PLUGINLIB_EXPORT_CLASS(pos_vel_acc_controllers::JointTrajectoryController,   controller_interface::ControllerBase)
+PLUGINLIB_EXPORT_CLASS(pos_vel_acc_controllers::JointTrajectoryController,   controller_interface::ControllerBase)

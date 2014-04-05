@@ -1,6 +1,5 @@
 <library path="lib/libur_controllers">
 
-  <!--
   <class name="pos_vel_acc_controllers/JointTrajectoryController" 
          type="pos_vel_acc_controllers::JointTrajectoryController" 
          base_class_type="controller_interface::ControllerBase">
@@ -9,7 +8,6 @@
       This variant represents trajectory segments as quintic splines and sends commands to a position/velocity/acceleration interface.
     </description>
   </class>
-  -->
 
   <class name="velocity_controllers/JointTrajectoryController" 
          type="velocity_controllers::JointTrajectoryController" 
