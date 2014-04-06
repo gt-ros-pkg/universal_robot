@@ -3,17 +3,21 @@
   <rosparam>
     pva_forward_ctrl:
       type: ur_controllers/PosVelAccForwardController
+      mode: pva
     vel_forward_ctrl:
       type: ur_controllers/VelocityForwardController
+      mode: vel
 
     pva_enable_mode:
       type: ur_controllers/PosVelAccModeController
       joint_names: 
         - joint_command
+      mode: pva_enable
     vel_enable_mode:
       type: ur_controllers/VelocityModeController
       joint_names: 
         - joint_command
+      mode: vel_enable
 
     joint_state_pub:
       type: joint_state_controller/JointStateController
@@ -24,9 +28,11 @@
 
     vel_trajectory_ctrl:
       type: velocity_controllers/JointTrajectoryController
+      mode: vel
 
     pva_trajectory_ctrl:
       type: pos_vel_acc_controllers/JointTrajectoryController
+      mode: pva
 
     mode_state_pub:
       type: ur_controllers/StatePublishController

@@ -157,3 +157,15 @@ class ArmInterface(object):
         self._pub_vel.unregister()
         self._pub_pva.unregister()
 
+class CommandMode(object):
+    EMPTY = 0
+    VEL = 1
+    PVA = 2
+    STORQUE = 3
+    TORQUE = 4
+    ids = ['empty', 'vel', 'pva', 'storque', 'torque']
+    names = ['Empty mode',
+             'Velocity',
+             'Position/Velocity/Acceleration',
+             'Secure Torque',
+             'Torque']
