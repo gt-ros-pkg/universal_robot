@@ -169,8 +169,8 @@ class URControllerManager(ControllerManager):
                 if is_running:
                     running_controllers.append(ctrl_name)
                     if ctrl_name == start_ctrl_name:
-                        rospy.logwarn('Starting controller already running, nothing will be done.')
-                        return
+                        # rospy.logwarn('Starting controller already running, nothing will be done.')
+                        return True
                 else:
                     if ctrl_name == start_ctrl_name:
                         start_ctrl_mode = mode
@@ -182,7 +182,6 @@ class URControllerManager(ControllerManager):
 
         running_mode_ctrl_name = ''
         start_ctrl_mode_name = ''
-        print enable_controllers
         for mode, (ctrl_name, is_running) in enumerate(enable_controllers):
             if is_running:
                 running_mode_ctrl_name = ctrl_name
