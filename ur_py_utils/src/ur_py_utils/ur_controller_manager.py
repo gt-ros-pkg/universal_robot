@@ -130,28 +130,8 @@ class ControllerManager(object):
             return False
 
 class URControllerManager(ControllerManager):
-    # VEL_MODE_HW_IFACE = 'ur_controllers::VelocityModeController'
-    # PVA_MODE_HW_IFACE = 'ur_controllers::PosVelAccModeController'
-
     def __init__(self, namespace='controller_manager', blocking=True):
         super(URControllerManager, self).__init__(namespace, blocking)
-
-    # def get_mode_ctrl_states(self):
-    #     resp = self.list_ctrls()
-    #     running_modes = []
-    #     for c in resp.controller:
-    #         if c.hardware_interface == VEL_MODE_HW_IFACE:
-    #             if c.state == 'running'
-    #                 running_modes.append(CommandMode.VEL)
-    #         if c.hardware_interface == PVA_MODE_HW_IFACE:
-    #             if c.state == 'running'
-    #                 running_modes.append(CommandMode.PVA)
-    #     if len(running_modes) > 1:
-    #         rospy.logerror('Multiple joint command modes running, this should not happen...')
-    #         return
-    #     elif len(running_modes) == 0:
-    #         return CommandMode.EMPTY
-    #     return running_modes[0] # should be length 1
 
     def get_controller_modes(self):
         possible_modes = CommandMode.ids
