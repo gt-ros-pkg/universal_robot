@@ -132,6 +132,8 @@ public:
     for(int i=0;i<v.size();i++)
       joints_.push_back(hw->getHandle(v[i]));
     vel_.resize(joints_.size());
+    n.param("reset_vel", reset_vel_, 0);
+    n.param("reset_timeout", reset_timeout_, 1.0);
 
     sub_command_ = n.subscribe<std_msgs::Float64MultiArray>("command", 1, 
                                         &VelocityForwardController::commandCB, this);
@@ -143,15 +145,28 @@ public:
 
   void update(const ros::Time& time, const ros::Duration& period) 
   {
-    for(int i=0;i<joints_.size();i++) {
-      joints_[i].setCommand(vel_[i]); 
-      vel_[i] = NAN;
+    if(reset_vel_ || (time - last_cmd_time_).toSec() > reset_timeout_) {
+      for(int i=0;i<joints_.size();i++) {
+        joints_[i].setCommand(NAN); 
+      }
+    } else {
+      for(int i=0;i<joints_.size();i++) {
+        joints_[i].setCommand(vel_[i]); 
+      }
+    }
+    if(has_updated_) {
+      last_cmd_time_ = time;
+      has_updated_ = false;
     }
   }
 
 private:
   std::vector<hardware_interface::JointHandle> joints_;
   std::vector<double> vel_;
+  ros::Time last_cmd_time_;
+  int reset_vel_;
+  double reset_timeout_;
+  bool has_updated_;
 
   ros::Subscriber sub_command_;
   void commandCB(const std_msgs::Float64MultiArrayConstPtr& msg) 
@@ -164,6 +179,7 @@ private:
     for(int i=0;i<joints_.size();i++) {
       vel_[i] = msg->data[i];
     }
+    has_updated_ = true;
   }
 };
 

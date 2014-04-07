@@ -35,6 +35,8 @@ class JointVelocityController(object):
             # self.arm_iface.cmd_pos_vel_acc(q_cmd, qd_cmd, qdd_cmd)
             self.arm_iface.cmd_vel(qd_cmd)
             self.t += 1.0/self.arm_iface.CONTROL_RATE
+        else:
+            self.arm_iface.cmd_vel(np.zeros(6))
 
     def start_moving(self, joint_ind, direction, vel):
         # self.arm_iface.unlock_security_stop()
