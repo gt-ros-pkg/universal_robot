@@ -2,7 +2,7 @@ import numpy as np
 
 import rospy
 from rospy import ROSException
-from std_msgs.msg import Bool, Int32, Int32MultiArray, Empty, Float64MultiArray
+from std_msgs.msg import Bool, Int32, Int32MultiArray, Empty, Float64MultiArray, Float64
 from trajectory_msgs.msg import JointTrajectoryPoint
 from sensor_msgs.msg import JointState
 
@@ -22,41 +22,42 @@ class ArmInterface(object):
         self._pub_power_off = rospy.Publisher(config_prefix + '/power_off_robot', Empty)
         self._pub_unlock_sstop = rospy.Publisher(config_prefix + '/unlock_security_stop', Empty)
         self._pub_set_sstop = rospy.Publisher(config_prefix + '/set_security_stop', Int32MultiArray)
+        self._pub_set_tcp_payload = rospy.Publisher(config_prefix + '/set_tcp_payload', Float64)
 
         self._pub_vel = rospy.Publisher('/vel_forward_ctrl/command', Float64MultiArray)
         self._pub_pva = rospy.Publisher('/pva_forward_ctrl/command', JointTrajectoryPoint)
     
     def is_emergency_stopped(self, timeout=0.3):
         try:
-            return rospy.wait_for_message('/is_emergency_stopped', Bool, timeout).data
+            return rospy.wait_for_message('/mode_state_pub/is_emergency_stopped', Bool, timeout).data
         except ROSException as e:
             rospy.logwarn('is_emergency_stopped timed out after %1.1f s' % timeout)
             return None
 
     def is_extra_button_pressed(self, timeout=0.3):
         try:
-            return rospy.wait_for_message('/is_extra_button_pressed', Bool, timeout).data
+            return rospy.wait_for_message('/mode_state_pub/is_extra_button_pressed', Bool, timeout).data
         except ROSException as e:
             rospy.logwarn('is_extra_button_pressed timed out after %1.1f s' % timeout)
             return None
 
     def is_power_button_pressed(self, timeout=0.3):
         try:
-            return rospy.wait_for_message('/is_power_button_pressed', Bool, timeout).data
+            return rospy.wait_for_message('/mode_state_pub/is_power_button_pressed', Bool, timeout).data
         except ROSException as e:
             rospy.logwarn('is_power_button_pressed timed out after %1.1f s' % timeout)
             return None
 
     def is_power_on_robot(self, timeout=0.3):
         try:
-            return rospy.wait_for_message('/is_power_on_robot', Bool, timeout).data
+            return rospy.wait_for_message('/mode_state_pub/is_power_on_robot', Bool, timeout).data
         except ROSException as e:
             rospy.logwarn('is_power_on_robot timed out after %1.1f s' % timeout)
             return None
 
     def is_safety_sig_should_stop(self, timeout=0.3):
         try:
-            return rospy.wait_for_message('/is_safety_signal_such_that_we_should_stop', 
+            return rospy.wait_for_message('/mode_state_pub/is_safety_signal_such_that_we_should_stop', 
                                           Bool, timeout).data
         except ROSException as e:
             rospy.logwarn('is_safety_sig_should_stop timed out after %1.1f s' % timeout)
@@ -64,21 +65,21 @@ class ArmInterface(object):
 
     def is_security_stopped(self, timeout=0.3):
         try:
-            return rospy.wait_for_message('/is_security_stopped', Bool, timeout).data
+            return rospy.wait_for_message('/mode_state_pub/is_security_stopped', Bool, timeout).data
         except ROSException as e:
             rospy.logwarn('is_security_stopped timed out after %1.1f s' % timeout)
             return None
 
     def joint_mode_ids(self, timeout=0.3):
         try:
-            return rospy.wait_for_message('/joint_mode_ids', Int32MultiArray, timeout).data
+            return rospy.wait_for_message('/mode_state_pub/joint_mode_ids', Int32MultiArray, timeout).data
         except ROSException as e:
             rospy.logwarn('joint_mode_ids timed out after %1.1f s' % timeout)
             return None
 
     def robot_mode_id(self, timeout=0.3):
         try:
-            return rospy.wait_for_message('/robot_mode_id', Int32, timeout).data
+            return rospy.wait_for_message('/mode_state_pub/robot_mode_id', Int32, timeout).data
         except ROSException as e:
             rospy.logwarn('robot_mode_id timed out after %1.1f s' % timeout)
             return None
@@ -102,6 +103,11 @@ class ArmInterface(object):
         stop_msg = Int32MultiArray()
         stop_msg.data = [0, 110, 0]
         self._pub_set_sstop.publish(stop_msg)
+
+    def set_tcp_payload(self, payload):
+        payload_msg = Float64()
+        payload_msg.data = payload
+        self._pub_set_tcp_payload.publish(payload_msg)
 
     def cmd_vel(self, qd):
         cmd = Float64MultiArray()

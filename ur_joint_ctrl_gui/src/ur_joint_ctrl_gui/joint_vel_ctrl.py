@@ -3,6 +3,7 @@ import numpy as np
 
 import rospy
 from ur_py_utils.arm_iface import ArmInterface
+from ur_py_utils.ur_controller_manager import URControllerManager
 
 class JointVelocityController(object):
     def __init__(self):
@@ -16,6 +17,7 @@ class JointVelocityController(object):
         self.t = 0.0
         js_prefix = rospy.get_param("~js_prefix", "")
         self.arm_iface = ArmInterface(js_prefix=js_prefix)
+        self.cman = URControllerManager()
         # self.q_init = None
 
     def update(self):
@@ -40,6 +42,7 @@ class JointVelocityController(object):
 
     def start_moving(self, joint_ind, direction, vel):
         # self.arm_iface.unlock_security_stop()
+
         self.moving_joint = joint_ind
         self.moving_dir = direction
         self.t = 0.0
@@ -47,6 +50,7 @@ class JointVelocityController(object):
         self.acc = self.vel_f / self.t_f
         # self.pos_f = 0.5*self.acc*(self.t_f**2)
         # self.q_init = np.array(self.arm_iface.get_q())
+        self.cman.start_joint_controller('vel_forward_ctrl')
 
     def stop_moving(self):
         self.moving_joint = None
