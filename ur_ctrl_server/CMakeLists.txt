@@ -62,15 +62,13 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-# add_definitions(-DROS=1)  # Build using ROS libraries
-# add_definitions(-DLINUXSOCKETS=1)  # Use linux sockets for communication
-# add_definitions(-DFLOAT64=1)  # Use 64-bit floats for communication
-# add_definitions(-DROBOTDISABLED=1)  # Robot communication is disabled
-
 add_library(ur_ctrl_msgs
     src/simple_msgs/ur_joint_cmd.cpp
     src/simple_msgs/ur_config_cmd.cpp
     src/simple_msgs/ur_state_data.cpp)
+set_target_properties(ur_ctrl_msgs PROPERTIES 
+    COMPILE_DEFINITIONS FLOAT64
+)
 
 add_library(ur_ctrl_base
     src/ur_joint_cmd_handler.cpp
@@ -81,6 +79,9 @@ target_link_libraries(ur_ctrl_base
     simple_message_float64
     ur_ctrl_msgs
 )
+set_target_properties(ur_ctrl_base PROPERTIES 
+    COMPILE_DEFINITIONS FLOAT64 LINUXSOCKETS
+)
 
 # build test controller
 add_executable(ur_test_server
@@ -89,7 +90,7 @@ add_executable(ur_test_server
 )
 target_link_libraries(ur_test_server ur_ctrl_base)
 set_target_properties(ur_test_server PROPERTIES 
-    COMPILE_DEFINITIONS TEST_CONTROLLER
+    COMPILE_DEFINITIONS TEST_CONTROLLER FLOAT64 LINUXSOCKETS
 )
 
 # build simulation controller
@@ -99,21 +100,8 @@ add_executable(ur_sim_server
 )
 target_link_libraries(ur_sim_server ur_ctrl_base)
 set_target_properties(ur_sim_server PROPERTIES 
-    COMPILE_DEFINITIONS SIMULATION_CONTROLLER
+    COMPILE_DEFINITIONS SIMULATION_CONTROLLER FLOAT64 LINUXSOCKETS
 )
-
-# build actual controller (Requires Find_CMakeLists file installed)
-# find_package(UR-C-API)
-# if( ${UR-C-API_FOUND} )
-#     include_directories(${UR-C-API_INCLUDE_DIRS})
-#     link_directories(${UR-C-API_INCLUDE_DIRS})
-#     add_executable(ur_ctrl_server
-#         src/ur_ctrl_server.cpp
-#         src/ur_hardware_controller.cpp
-#         src/run_controller.cpp
-#     )
-#     target_link_libraries(ur_ctrl_server ${UR-C-API_LIBRARIES} ur_ctrl_base)
-# endif()
 
 ## Declare a cpp library
 # add_library(ur_ctrl_server

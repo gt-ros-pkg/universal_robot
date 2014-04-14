@@ -2,8 +2,6 @@
 #ifndef UR_STATE_DATA_H
 #define UR_STATE_DATA_H
 
-#define FLOAT64
-
 #include <vector>
 
 #include <simple_message/simple_message.h>

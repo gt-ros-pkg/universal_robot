@@ -1,8 +1,6 @@
 #ifndef UR_CONFIG_CMD_H
 #define UR_CONFIG_CMD_H
 
-#define FLOAT64
-
 #include <vector>
 
 #include "simple_message/simple_message.h"

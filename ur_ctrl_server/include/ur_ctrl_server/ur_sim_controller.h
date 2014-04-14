@@ -28,7 +28,6 @@ private:
 
 };
 
-typedef URSimController URController;
 }
 
 #endif // UR_TEST_CONTROLLER_H

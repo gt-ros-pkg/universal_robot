@@ -23,8 +23,7 @@ protected:
 
 private:
 
-  int open_result; // currently unused
-  int close_result; // currently unused
+  bool interface_open; // have we opened the UR interface?
   int unlock_security_stop_result; // currently unused
 
   ////////////////////////// Robot Error Messages ///////////////////////////
@@ -39,8 +38,6 @@ public:
   virtual int initRobot(int argc, char** argv);
 
 };
-
-typedef URHardwareController URController;
 
 }
 

@@ -23,7 +23,6 @@ public:
 
 };
 
-typedef URTestController URController;
 }
 
 #endif // UR_TEST_CONTROLLER_H

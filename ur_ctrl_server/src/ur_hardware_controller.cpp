@@ -69,6 +69,9 @@ int URHardwareController::initRobot(int argc, char** argv)
 
 void URHardwareController::readRobotState()
 {
+  if(!interface_open)
+    return;
+
   // waits until the next control cycle (125Hz) and repopulates local variables
   robotinterface_read_state_blocking();
 
@@ -112,6 +115,18 @@ void URHardwareController::readRobotState()
 
 void URHardwareController::sendRobotCommands()
 {
+  //////////////////////////// Interface commands /////////////////////////////
+  if(config_cmd.func_calls & URI_OPEN_REAL)
+    interface_open = robotinterface_open(0);
+
+  else if(config_cmd.func_calls & URI_OPEN_SIMULATED)
+    interface_open = robotinterface_open(1);
+
+  if(config_cmd.func_calls & URI_CLOSE)
+    interface_open = !robotinterface_close();
+
+  if(!interface_open)
+    return;
   ////////////////////////////// Joint commands ///////////////////////////////
   if(ur_state.robot_mode_id != ROBOT_RUNNING_MODE && ur_state.robot_mode_id != ROBOT_INITIALIZING_MODE) 
     // robot not running at the moment, don't bother commanding joints
@@ -132,6 +147,7 @@ void URHardwareController::sendRobotCommands()
 
   else if(jnt_cmd.mode == ur::URJointCommandModes::POS_VEL_ACC)
     robotinterface_command_position_velocity_acceleration(jnt_cmd.q, jnt_cmd.qd, jnt_cmd.qdd);
+    //robotinterface_command_position_velocity_acceleration(jnt_cmd.q, jnt_cmd.qd, ZERO_VECTOR);
 
   else if(jnt_cmd.mode == ur::URJointCommandModes::VEL_SEC_CTRL_TORQUE)
     robotinterface_command_velocity_security_torque_control_torque(
@@ -146,15 +162,6 @@ void URHardwareController::sendRobotCommands()
   /////////////////////////////////////////////////////////////////////////////
 
   /////////////////////////////// Config commands ///////////////////////////////
-  if(config_cmd.func_calls & URI_OPEN_REAL)
-    open_result = robotinterface_open(0);
-
-  else if(config_cmd.func_calls & URI_OPEN_SIMULATED)
-    open_result = robotinterface_open(1);
-
-  if(config_cmd.func_calls & URI_CLOSE)
-    close_result = robotinterface_close();
-
   if(config_cmd.func_calls & URI_UNLOCK_SECURITY_STOP)
     unlock_security_stop_result = robotinterface_unlock_security_stop();
 

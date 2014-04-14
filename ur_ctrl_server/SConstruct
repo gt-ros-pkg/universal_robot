@@ -1,5 +1,16 @@
 # Construction environment
-env = Environment(CPPDEFINES='NDEBUG', CCFLAGS='-O2 -Wall')
+# cppdefines_test = ['NDEBUG', 'LINUXSOCKETS', 'FLOAT64', 'TEST_CONTROLLER']
+# cppdefines_hw = ['NDEBUG', 'LINUXSOCKETS', 'FLOAT64', 'HARDWARE_CONTROLLER']
+# cppdefines_sim = ['NDEBUG', 'LINUXSOCKETS', 'FLOAT64', 'SIMULATION_CONTROLLER']
+# env_test = Environment(CPPDEFINES=cppdefines_test, CCFLAGS='-O2 -Wall')
+# env_sim = Environment(CPPDEFINES=cppdefines_sim, CCFLAGS='-O2 -Wall')
 
 # Build '.'
-env.SConscript('./SConscript', exports='env', variant_dir='./build', duplicate=0)
+ctrl_type = 'HARDWARE_CONTROLLER'
+SConscript('SConscript', exports='ctrl_type', variant_dir='./build/hw', duplicate=0)
+ctrl_type = 'SIMULATION_CONTROLLER'
+SConscript('SConscript', exports='ctrl_type', variant_dir='./build/sim', duplicate=0)
+ctrl_type = 'TEST_CONTROLLER'
+SConscript('SConscript', exports='ctrl_type', variant_dir='./build/test', duplicate=0)
+# env_test.SConscript('./SConscript', exports='env_test', variant_dir='./build', duplicate=0)
+# env_sim.SConscript('./SConscript', exports='env_sim', variant_dir='./build', duplicate=0)
