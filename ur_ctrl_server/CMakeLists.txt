@@ -67,7 +67,7 @@ add_library(ur_ctrl_msgs
     src/simple_msgs/ur_config_cmd.cpp
     src/simple_msgs/ur_state_data.cpp)
 set_target_properties(ur_ctrl_msgs PROPERTIES 
-    COMPILE_DEFINITIONS FLOAT64
+    COMPILE_DEFINITIONS "FLOAT64;LINUXSOCKETS"
 )
 
 add_library(ur_ctrl_base
@@ -80,7 +80,7 @@ target_link_libraries(ur_ctrl_base
     ur_ctrl_msgs
 )
 set_target_properties(ur_ctrl_base PROPERTIES 
-    COMPILE_DEFINITIONS FLOAT64 LINUXSOCKETS
+    COMPILE_DEFINITIONS "FLOAT64;LINUXSOCKETS"
 )
 
 # build test controller
@@ -90,7 +90,7 @@ add_executable(ur_test_server
 )
 target_link_libraries(ur_test_server ur_ctrl_base)
 set_target_properties(ur_test_server PROPERTIES 
-    COMPILE_DEFINITIONS TEST_CONTROLLER FLOAT64 LINUXSOCKETS
+    COMPILE_DEFINITIONS "TEST_CONTROLLER;FLOAT64;LINUXSOCKETS"
 )
 
 # build simulation controller
@@ -100,7 +100,7 @@ add_executable(ur_sim_server
 )
 target_link_libraries(ur_sim_server ur_ctrl_base)
 set_target_properties(ur_sim_server PROPERTIES 
-    COMPILE_DEFINITIONS SIMULATION_CONTROLLER FLOAT64 LINUXSOCKETS
+    COMPILE_DEFINITIONS "SIMULATION_CONTROLLER;FLOAT64;LINUXSOCKETS"
 )
 
 ## Declare a cpp library
