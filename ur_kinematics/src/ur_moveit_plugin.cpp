@@ -691,19 +691,27 @@ bool URKinematicsPlugin::searchPositionIK(const geometry_msgs::Pose &ik_pose,
         error_code.val = error_code.SUCCESS;
 
       if(error_code.val == error_code.SUCCESS) {
+#if 0
         std::vector<std::string> fk_link_names;
         fk_link_names.push_back(ur_link_names_.back());
         std::vector<geometry_msgs::Pose> fk_poses;
         getPositionFK(fk_link_names, solution, fk_poses);
         KDL::Frame kdl_fk_pose;
         tf::poseMsgToKDL(fk_poses[0], kdl_fk_pose);
-#if 0
         printf("FK(solution) - pose \n");
         for(int i=0; i<4; i++) {
           for(int j=0; j<4; j++)
             printf("%1.6f ", kdl_fk_pose(i, j)-kdl_ik_pose(i, j));
           printf("\n");
         }
+#endif
+#if 0
+        static double time_elapsed = 0.0;
+        static int num_times = 0;
+        time_elapsed += (ros::WallTime::now() - n1).toSec();
+        num_times++;
+        printf("N %5d, %f\n", num_times, time_elapsed/num_times);
+        
 #endif
         return true;
       }

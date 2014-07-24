@@ -55,6 +55,8 @@
             param="pva_trajectory_ctrl" />
   <rosparam command="load" file="$(find ur_controllers)/launch/trajectory_ctrl_constraints.yaml"
             param="vel_trajectory_ctrl" />
+  <rosparam command="load" file="$(find ur_controllers)/launch/vel_trajectory_ctrl_gains.yaml"
+            param="vel_trajectory_ctrl" />
 
   <!--<node name="controller_manager" type="spawner" pkg="controller_manager"
         output="screen" args="pva_forward_ctrl" /> -->
