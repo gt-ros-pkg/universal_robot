@@ -2,6 +2,9 @@
 #include <joint_trajectory_controller/hardware_interface_adapter.h>
 #include <ur_ctrl_client/pos_vel_acc_joint_iface.h>
 #include <trajectory_interface/pos_vel_acc_state.h>
+#include <boost/scoped_ptr.hpp>
+#include <std_msgs/Float64MultiArray.h>
+#include <realtime_tools/realtime_publisher.h>
 
 /**
  * \brief Adapter for an velocity-controlled hardware interface. Maps position and velocity errors to velocity commands
@@ -40,6 +43,10 @@ public:
     // Store pointer to joint handles
     joint_handles_ptr_ = &joint_handles;
 
+    double cmd_publish_rate;
+    controller_nh.param<double>("cmd_publish_rate", cmd_publish_rate, 100.0);
+    cmd_pub_period_ = ros::Duration(1.0 / cmd_publish_rate);
+
     // Initialize PIDs
     pids_.resize(joint_handles.size());
     for (unsigned int i = 0; i < pids_.size(); ++i)
@@ -54,6 +61,17 @@ public:
         ROS_WARN_STREAM("Failed to initialize PID gains from ROS parameter server.");
         return false;
       }
+    }
+
+    command_publisher_.reset(new CommandPublisher(controller_nh, "ctrl_command", 1));
+    {
+      command_publisher_->lock();
+      const unsigned int n_joints = joint_handles_ptr_->size();
+      for (unsigned int i = 0; i < n_joints; ++i) 
+        command_publisher_->msg_.data.push_back((*joint_handles_ptr_)[i].getCommand());
+      command_publisher_->msg_.layout.dim.resize(1);
+      command_publisher_->msg_.layout.dim[0].size = n_joints;
+      command_publisher_->unlock();
     }
 
     return true;
@@ -73,7 +91,7 @@ public:
 
   void stopping(const ros::Time& time) {}
 
-  void updateCommand(const ros::Time&     /*time*/,
+  void updateCommand(const ros::Time&     time,
                      const ros::Duration& period,
                      const State&         /*desired_state*/,
                      const State&         state_error)
@@ -88,8 +106,19 @@ public:
     // Update PIDs
     for (unsigned int i = 0; i < n_joints; ++i)
     {
-      const double eff_command = pids_[i]->computeCommand(state_error.position[i], state_error.velocity[i], period);
-      (*joint_handles_ptr_)[i].setCommand(eff_command*period.toSec());
+      const double vel_command = pids_[i]->computeCommand(state_error.position[i], state_error.velocity[i], period);
+      (*joint_handles_ptr_)[i].setCommand(vel_command);
+    }
+
+    if (!cmd_pub_period_.isZero() && last_cmd_pub_time_ + cmd_pub_period_ < time)
+    {
+      if (command_publisher_ && command_publisher_->trylock())
+      {
+        last_cmd_pub_time_ += cmd_pub_period_;
+        for (unsigned int i = 0; i < n_joints; ++i)
+          command_publisher_->msg_.data[i] = (*joint_handles_ptr_)[i].getCommand();
+        command_publisher_->unlockAndPublish();
+      }
     }
   }
 
@@ -98,6 +127,12 @@ private:
   std::vector<PidPtr> pids_;
 
   std::vector<hardware_interface::JointHandle>* joint_handles_ptr_;
+
+  typedef realtime_tools::RealtimePublisher<std_msgs::Float64MultiArray> CommandPublisher;
+  typedef boost::scoped_ptr<CommandPublisher> CommandPublisherPtr;
+  CommandPublisherPtr command_publisher_;
+  ros::Time last_cmd_pub_time_;
+  ros::Duration cmd_pub_period_;
 };
 
 /**
