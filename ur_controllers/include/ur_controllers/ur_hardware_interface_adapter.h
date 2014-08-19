@@ -1,6 +1,6 @@
 
 #include <joint_trajectory_controller/hardware_interface_adapter.h>
-#include <ur_ctrl_client/pos_vel_acc_joint_iface.h>
+#include <hardware_interface/pos_vel_acc_joint_interface.h>
 #include <trajectory_interface/pos_vel_acc_state.h>
 #include <boost/scoped_ptr.hpp>
 #include <std_msgs/Float64MultiArray.h>
@@ -103,10 +103,12 @@ public:
     assert(n_joints == state_error.position.size());
     assert(n_joints == state_error.velocity.size());
 
-    // Update PIDs
+    // Update commands from PIDs
     for (unsigned int i = 0; i < n_joints; ++i)
     {
-      const double vel_command = pids_[i]->computeCommand(state_error.position[i], state_error.velocity[i], period);
+      const double vel_command = pids_[i]->computeCommand(state_error.position[i], 
+                                                          state_error.velocity[i], 
+                                                          period);
       (*joint_handles_ptr_)[i].setCommand(vel_command);
     }
 

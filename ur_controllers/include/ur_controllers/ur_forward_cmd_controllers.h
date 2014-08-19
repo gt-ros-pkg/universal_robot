@@ -12,7 +12,7 @@
 #include <std_msgs/Float64.h>
 #include <std_msgs/Empty.h>
 
-#include <ur_ctrl_client/pos_vel_acc_joint_iface.h>
+#include <hardware_interface/pos_vel_acc_joint_interface.h>
 #include <ur_ctrl_client/ur_config_iface.h>
 
 using hardware_interface::PosVelAccJointHandle;
