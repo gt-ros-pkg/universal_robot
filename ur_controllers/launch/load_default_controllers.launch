@@ -21,7 +21,7 @@
 
     joint_state_pub:
       type: joint_state_controller/JointStateController
-      publish_rate: 100
+      publish_rate: 125
       
     config_fwd_ctrl:
       type: ur_controllers/ConfigForwardController
@@ -61,8 +61,8 @@
   <!--<node name="controller_manager" type="spawner" pkg="controller_manager"
         output="screen" args="pva_forward_ctrl" /> -->
 
-  <node name="ur_load_ctrls" type="controller_manager" pkg="controller_manager"
-        output="screen" args="load pva_forward_ctrl pva_enable_mode vel_trajectory_ctrl pva_trajectory_ctrl" />
+  <node name="ur_load_ctrls" type="spawner" pkg="controller_manager"
+        output="screen" args="--stopped pva_forward_ctrl pva_enable_mode vel_trajectory_ctrl pva_trajectory_ctrl" />
   <node name="ur_spawn_ctrls" type="spawner" pkg="controller_manager"
         output="screen" args="joint_state_pub mode_state_pub ur_diagnostics_pub config_fwd_ctrl vel_enable_mode vel_forward_ctrl" />
 
