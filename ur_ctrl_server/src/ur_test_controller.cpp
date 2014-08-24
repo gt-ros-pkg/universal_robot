@@ -29,6 +29,8 @@ void URTestController::readRobotState()
 
 void URTestController::sendRobotCommands()
 {
+  if(!connection->isConnected())
+    printf("[Not connected] ");
   ////////////////////////////// Joint commands ///////////////////////////////
 
   if(jnt_cmd.mode == ur::URJointCommandModes::EMPTY) {

@@ -44,8 +44,7 @@ void URRobotHW::init(std::string& robot_ip)
 {
   ROS_INFO("Robot state connecting to IP address: %s", robot_ip.c_str());
   connection_.init(const_cast<char *>(robot_ip.c_str()), UR_COM_PORT);
-  if(!connection_.isConnected())
-    connection_.makeConnect();
+  connection_.makeConnect();
   msg_man_.init(&connection_);
   ur_state_hdl_.init(&connection_, &ur_state_data_);
   msg_man_.add(&ur_state_hdl_);
@@ -74,25 +73,20 @@ void URRobotHW::clearCommands()
   ur_config_cmd_.clearCommands();
 }
 
-// This blocks until the state information message has been received 
-// from simple_message connection.
 void URRobotHW::read()
 {
   ur_state_hdl_.reset();
 
-  ros::Rate r(500);
-  while(ros::ok()) {
-    while(connection_.isReadyReceive(0) && ros::ok()) 
-      msg_man_.spinOnce();
-    if(ur_state_hdl_.hasUpdated()) {
-      return; 
-    }
-    r.sleep();
-  }
+  // checks buffer once for any messages
+  while(connection_.isReadyReceive(0) && ros::ok()) 
+    msg_man_.spinOnce();
+  if(ur_state_hdl_.hasUpdated())
+    return; // check whether we're still getting messages and connected
 }
 
 void URRobotHW::write()
 {
+  //printf("write()\n");
 
   // Process latest commands if they are updated
   ur_joint_cmd_.mode = joint_mode_;

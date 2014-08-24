@@ -23,8 +23,11 @@ URControllerInterface::~URControllerInterface() {}
 
 void URControllerInterface::sendAndReceiveMessages()
 {
-  if(connection->isReadyReceive(0) && !connection->isConnected()) 
-    connection->makeConnect();
+  if(!connection->isConnected() && connection->isReadyReceive(0)) {
+    // only attempt to connect if it will not block for long
+    connection->makeConnect(); // should block until a handshake occurs
+    latest_cmd_seq = ur_state.sequence + STARTUP_TIMEOUT_BIAS;
+  }
   if(!connection->isConnected()) 
     return;
 
@@ -40,8 +43,12 @@ void URControllerInterface::sendAndReceiveMessages()
   while(connection->isReadyReceive(0))
     msg_man.spinOnce();
 
-  if(joint_cmd_handler.hasUpdated()) {
+  if(joint_cmd_handler.hasUpdated()) 
     latest_cmd_seq = ur_state.sequence;
+
+  if(ur_state.sequence - latest_cmd_seq >= CMD_TIMEOUT) {
+    // printf("TIMEOUT\n");
+    connection->setConnected(false);
   }
 }
 
