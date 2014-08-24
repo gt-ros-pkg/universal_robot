@@ -81,17 +81,17 @@ private:
   {
     if(msg->positions.size() != pos_.size()) {
       ROS_ERROR("PosVelAccForwardController: positions size %d not of same length as joint_names %d",
-                msg->positions.size(), pos_.size());
+                (int) msg->positions.size(), (int) pos_.size());
       return;
     }
     if(msg->velocities.size() != vel_.size()) {
       ROS_ERROR("PosVelAccForwardController: velocities size %d not of same length as joint_names %d",
-                msg->velocities.size(), vel_.size());
+                (int) msg->velocities.size(), (int) vel_.size());
       return;
     }
     if(msg->accelerations.size() != acc_.size()) {
       ROS_ERROR("PosVelAccForwardController: accelerations size %d not of same length as joint_names %d",
-                msg->accelerations.size(), acc_.size());
+                (int) msg->accelerations.size(), (int) acc_.size());
       return;
     }
     for(int i=0;i<joints_.size();i++) {
@@ -173,7 +173,7 @@ private:
   {
     if(msg->data.size() != vel_.size()) {
       ROS_WARN("VelocityForwardController: velocities size %d not of same length as joint_names %d",
-               msg->data.size(), vel_.size());
+               (int) msg->data.size(), (int) vel_.size());
       return;
     }
     for(int i=0;i<joints_.size();i++) {
