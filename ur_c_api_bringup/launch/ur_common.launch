@@ -18,7 +18,7 @@
   NOTE: The ip address is actually passed to the driver on the command line -->
   <param name="/robot_ip_address" type="str" value="$(arg robot_ip)"/>
   
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
   <!-- load basic ros control controllers -->
   <include file="$(find ur_controllers)/launch/load_default_controllers.launch" />

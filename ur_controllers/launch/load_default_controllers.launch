@@ -34,8 +34,6 @@
       type: velocity_controllers/JoggingCommandController
       mode: vel
       heartbeat_timeout: 0.3
-      acceleration: 1.0
-      deceleration: 1.0
 
     pva_trajectory_ctrl:
       type: pos_vel_acc_controllers/JointTrajectoryController
@@ -66,7 +64,7 @@
             param="vel_trajectory_ctrl" />
   <rosparam command="load" file="$(find ur_controllers)/launch/vel_trajectory_ctrl_gains.yaml"
             param="vel_trajectory_ctrl" />
-  <rosparam command="load" file="$(find ur_controllers)/launch/vel_jogging_ctrl_gains.yaml"
+  <rosparam command="load" file="$(find ur_controllers)/launch/vel_jogging_ctrl_params.yaml"
             param="vel_jogging_ctrl" />
 
   <!--<node name="controller_manager" type="spawner" pkg="controller_manager"
