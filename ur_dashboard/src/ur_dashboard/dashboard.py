@@ -8,7 +8,7 @@ from ur_py_utils.arm_iface import ArmInterface
 from rqt_robot_dashboard.dashboard import Dashboard
 from rqt_robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget
 from rqt_robot_dashboard.widgets import MenuDashWidget, IconToolButton
-from QtGui import QMessageBox, QAction, QTextEdit
+from QtGui import QMessageBox, QAction, QTextEdit, QSizePolicy, QLabel
 from python_qt_binding.QtCore import QSize, Signal
 from QtCore import pyqtSlot, pyqtSignal
 
@@ -30,7 +30,13 @@ class URDashboard(Dashboard):
         self.timeout_timer = rospy.Timer(rospy.Duration(0.3), self.check_timeout_cb)
 
     def get_widgets(self):
-        return [[MonitorDashWidget(self.context), 
+        dash_name_label = QLabel()
+        dash_name_label.setObjectName('dash_name_label')
+        dash_name_label.setText('UR Dash')
+        fixed_policy = QSizePolicy(QSizePolicy.Fixed)
+        dash_name_label.setSizePolicy(fixed_policy)
+        return [[dash_name_label],
+                [MonitorDashWidget(self.context), 
                  ConsoleDashWidget(self.context)], 
                 [self._iface_widget, self._pwr_widget], 
                 [self._estop_widget, self._sstop_widget],
