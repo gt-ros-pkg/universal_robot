@@ -65,7 +65,7 @@
   </xacro:macro>
 
 
-  <xacro:macro name="ur10_robot" params="prefix joint_limited">
+  <xacro:macro name="ur10_robot" params="prefix j1_lwr_lmt j1_upr_lmt j2_lwr_lmt j2_upr_lmt j3_lwr_lmt j3_upr_lmt j4_lwr_lmt j4_upr_lmt j5_lwr_lmt j5_upr_lmt j6_lwr_lmt j6_upr_lmt">
   
     <link name="${prefix}base_link" >
       <visual>
@@ -91,12 +91,7 @@
       <child link = "${prefix}shoulder_link" />
       <origin xyz="0.0 0.0 ${shoulder_height}" rpy="0.0 0.0 0.0" />
       <axis xyz="0 0 1" />
-      <xacro:unless value="${joint_limited}">
-        <limit lower="${-2.0 * pi}" upper="${2.0 * pi}" effort="330.0" velocity="2.16"/>
-      </xacro:unless>
-      <xacro:if value="${joint_limited}">
-        <limit lower="${-pi}" upper="${pi}" effort="330.0" velocity="2.16"/>
-      </xacro:if>
+        <limit lower="${j1_lwr_lmt}" upper="${j1_upr_lmt}" effort="330.0" velocity="2.16"/>
       <dynamics damping="0.0" friction="0.0"/>
     </joint>
     
@@ -124,12 +119,7 @@
       <child link = "${prefix}upper_arm_link" />
       <origin xyz="0.0 ${shoulder_offset} 0.0" rpy="0.0 ${pi / 2.0} 0.0" />    
       <axis xyz="0 1 0" />
-      <xacro:unless value="${joint_limited}">
-        <limit lower="${-2.0 * pi}" upper="${2.0 * pi}" effort="330.0" velocity="2.16"/>
-      </xacro:unless>
-      <xacro:if value="${joint_limited}">
-        <limit lower="${-pi}" upper="${pi}" effort="330.0" velocity="2.16"/>
-      </xacro:if>
+        <limit lower="${j2_lwr_lmt}" upper="${j2_upr_lmt}" effort="330.0" velocity="2.16"/>
       <dynamics damping="0.0" friction="0.0"/>
     </joint>
 
@@ -157,12 +147,7 @@
       <child link = "${prefix}forearm_link" />
       <origin xyz="0.0 ${elbow_offset} ${upper_arm_length}" rpy="0.0 0.0 0.0" />
       <axis xyz="0 1 0" />
-      <xacro:unless value="${joint_limited}">
-        <limit lower="${-2.0 * pi}" upper="${2.0 * pi}" effort="150.0" velocity="3.15"/>
-      </xacro:unless>
-      <xacro:if value="${joint_limited}">
-        <limit lower="${-pi}" upper="${pi}" effort="150.0" velocity="3.15"/>
-      </xacro:if>
+        <limit lower="${j3_lwr_lmt}" upper="${j3_upr_lmt}" effort="150.0" velocity="3.15"/>
       <dynamics damping="0.0" friction="0.0"/>
     </joint>
 
@@ -190,12 +175,7 @@
       <child link = "${prefix}wrist_1_link" />
       <origin xyz="0.0 0.0 ${forearm_length}" rpy="0.0 ${pi / 2.0} 0.0" />
       <axis xyz="0 1 0" />
-      <xacro:unless value="${joint_limited}">
-        <limit lower="${-2.0 * pi}" upper="${2.0 * pi}" effort="54.0" velocity="3.2"/>
-      </xacro:unless>
-      <xacro:if value="${joint_limited}">
-        <limit lower="${-pi}" upper="${pi}" effort="54.0" velocity="3.2"/>
-      </xacro:if>
+        <limit lower="${j4_lwr_lmt}" upper="${j4_upr_lmt}" effort="54.0" velocity="3.2"/>
       <dynamics damping="0.0" friction="0.0"/>
     </joint>
 
@@ -223,12 +203,7 @@
       <child link = "${prefix}wrist_2_link" />
       <origin xyz="0.0 ${wrist_1_length} 0.0" rpy="0.0 0.0 0.0" />
       <axis xyz="0 0 1" />
-      <xacro:unless value="${joint_limited}">
-        <limit lower="${-2.0 * pi}" upper="${2.0 * pi}" effort="54.0" velocity="3.2"/>
-      </xacro:unless>
-      <xacro:if value="${joint_limited}">
-        <limit lower="${-pi}" upper="${pi}" effort="54.0" velocity="3.2"/>
-      </xacro:if>
+        <limit lower="${j5_lwr_lmt}" upper="${j5_upr_lmt}" effort="54.0" velocity="3.2"/>
       <dynamics damping="0.0" friction="0.0"/>
     </joint>
 
@@ -256,12 +231,7 @@
       <child link = "${prefix}wrist_3_link" />
       <origin xyz="0.0 0.0 ${wrist_2_length}" rpy="0.0 0.0 0.0" />
       <axis xyz="0 1 0" />
-      <xacro:unless value="${joint_limited}">
-        <limit lower="${-2.0 * pi}" upper="${2.0 * pi}" effort="54.0" velocity="3.2"/>
-      </xacro:unless>
-      <xacro:if value="${joint_limited}">
-        <limit lower="${-pi}" upper="${pi}" effort="54.0" velocity="3.2"/>
-      </xacro:if>
+        <limit lower="${j6_lwr_lmt}" upper="${j6_upr_lmt}" effort="54.0" velocity="3.2"/>
       <dynamics damping="0.0" friction="0.0"/>
     </joint>
 
