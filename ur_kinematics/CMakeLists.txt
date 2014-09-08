@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS roscpp geometry_msgs moveit_core moveit_
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
+find_package(orocos_kdl)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -50,7 +51,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ur10_kin ur5_kin ur10_moveit_plugin ur5_moveit_plugin
   CATKIN_DEPENDS pluginlib
-  DEPENDS moveit_core 
+  DEPENDS moveit_core orocos_kdl
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
@@ -66,6 +67,7 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 
 link_directories(${Boost_LIBRARY_DIRS})
 link_directories(${catkin_LIBRARY_DIRS})
+link_directories(${orocos_kdl_LIBRARY_DIRS})
 
 ## Declare a cpp library
 # add_library(ur_kinematics
@@ -82,6 +84,7 @@ set_target_properties(ur10_moveit_plugin PROPERTIES COMPILE_DEFINITIONS "UR10_PA
 target_link_libraries(ur10_moveit_plugin 
     ${catkin_LIBRARIES} 
     ${Boost_LIBRARIES}
+    ${orocos_kdl_LIBRARIES}
     ur10_kin)
 
 add_library(ur5_moveit_plugin src/ur_moveit_plugin.cpp)
@@ -89,6 +92,7 @@ set_target_properties(ur5_moveit_plugin PROPERTIES COMPILE_DEFINITIONS "UR5_PARA
 target_link_libraries(ur5_moveit_plugin 
     ${catkin_LIBRARIES} 
     ${Boost_LIBRARIES}
+    ${orocos_kdl_LIBRARIES}
     ur5_kin)
 
 ## Declare a cpp executable
