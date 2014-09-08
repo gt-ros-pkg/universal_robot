@@ -19,6 +19,7 @@ URHardwareController::URHardwareController(SimpleSocket* socket_conn)
 
 int URHardwareController::initRobot(int argc, char** argv)
 {
+#if 0
   double joint_vel[6];
   if(argc == 1) {
     for(int j=0;j<6;j++)
@@ -37,6 +38,7 @@ int URHardwareController::initRobot(int argc, char** argv)
       }
     }
   }
+#endif
 
   // Load UR configuration file
   printf("Loading robot configuration...\n");
@@ -69,8 +71,9 @@ int URHardwareController::initRobot(int argc, char** argv)
 
 void URHardwareController::readRobotState()
 {
-  if(!interface_open)
-    return;
+
+  // if(!interface_open)
+  //   return;
 
   // waits until the next control cycle (125Hz) and repopulates local variables
   robotinterface_read_state_blocking();
@@ -116,8 +119,10 @@ void URHardwareController::readRobotState()
 void URHardwareController::sendRobotCommands()
 {
   //////////////////////////// Interface commands /////////////////////////////
-  if(config_cmd.func_calls & URI_OPEN_REAL)
+  if(config_cmd.func_calls & URI_OPEN_REAL) {
     interface_open = robotinterface_open(0);
+    robotinterface_read_state_blocking();
+  }
 
   else if(config_cmd.func_calls & URI_OPEN_SIMULATED)
     interface_open = robotinterface_open(1);
@@ -125,21 +130,28 @@ void URHardwareController::sendRobotCommands()
   if(config_cmd.func_calls & URI_CLOSE)
     interface_open = !robotinterface_close();
 
-  if(!interface_open)
-    return;
+  // if(!interface_open)
+  //   return;
+  ////////////////////////////// Freedrive logic //////////////////////////////
+  if(ur_state.is_extra_button_pressed) {
+    if(ur_state.robot_mode_id == ROBOT_RUNNING_MODE)
+      robotinterface_set_robot_freedrive_mode();
+  } else {
+    if(ur_state.robot_mode_id == ROBOT_FREEDRIVE_MODE)
+      robotinterface_set_robot_running_mode();
+  }
+  /////////////////////////////////////////////////////////////////////////////
+
   ////////////////////////////// Joint commands ///////////////////////////////
   if(ur_state.robot_mode_id != ROBOT_RUNNING_MODE && ur_state.robot_mode_id != ROBOT_INITIALIZING_MODE) 
     // robot not running at the moment, don't bother commanding joints
-    // robotinterface_command_empty_command();
     robotinterface_command_velocity(ZERO_VECTOR);
 
   else if(ur_state.sequence - latest_cmd_seq >= CMD_TIMEOUT)
     // we haven't received a new command for CMD_TIMEOUT cycles, stop moving
-    // robotinterface_command_empty_command();
     robotinterface_command_velocity(ZERO_VECTOR);
 
   else if(jnt_cmd.mode == ur::URJointCommandModes::EMPTY)
-    // robotinterface_command_empty_command();
     robotinterface_command_velocity(ZERO_VECTOR);
 
   else if(jnt_cmd.mode == ur::URJointCommandModes::VEL)
@@ -147,7 +159,6 @@ void URHardwareController::sendRobotCommands()
 
   else if(jnt_cmd.mode == ur::URJointCommandModes::POS_VEL_ACC)
     robotinterface_command_position_velocity_acceleration(jnt_cmd.q, jnt_cmd.qd, jnt_cmd.qdd);
-    //robotinterface_command_position_velocity_acceleration(jnt_cmd.q, jnt_cmd.qd, ZERO_VECTOR);
 
   else if(jnt_cmd.mode == ur::URJointCommandModes::VEL_SEC_CTRL_TORQUE)
     robotinterface_command_velocity_security_torque_control_torque(
@@ -157,7 +168,6 @@ void URHardwareController::sendRobotCommands()
     robotinterface_command_torque(jnt_cmd.qd, jnt_cmd.security_torque, jnt_cmd.control_torque);
 
   else
-    // robotinterface_command_empty_command();
     robotinterface_command_velocity(ZERO_VECTOR);
   /////////////////////////////////////////////////////////////////////////////
 
