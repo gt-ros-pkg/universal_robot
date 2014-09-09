@@ -63,9 +63,9 @@ public:
   void update(const ros::Time& time, const ros::Duration& period) 
   {
     for(int i=0;i<joints_.size();i++) {
-      joints_[i].setPosition(pos_[i]); 
-      joints_[i].setVelocity(vel_[i]); 
-      joints_[i].setAcceleration(acc_[i]);
+      joints_[i].setPositionCommand(pos_[i]); 
+      joints_[i].setVelocityCommand(vel_[i]); 
+      joints_[i].setAccelerationCommand(acc_[i]);
       pos_[i] = NAN; vel_[i] = NAN; acc_[i] = NAN;
     }
   }

@@ -33,14 +33,14 @@ public:
     }
   }
 
-  void   setPosition(double pos) {setCommand(pos);}
-  double getPosition() const {return getCommand();}
+  void   setPositionCommand(double pos) {setCommand(pos);}
+  double getPositionCommand() const {return getCommand();}
 
-  void   setVelocity(double vel) {assert(vel_); *vel_ = vel;}
-  double getVelocity() const {assert(vel_); return *vel_;}
+  void   setVelocityCommand(double vel) {assert(vel_); *vel_ = vel;}
+  double getVelocityCommand() const {assert(vel_); return *vel_;}
 
-  void   setAcceleration(double acc) {assert(acc_); *acc_ = acc;}
-  double getAcceleration() const {assert(acc_); return *acc_;}
+  void   setAccelerationCommand(double acc) {assert(acc_); *acc_ = acc;}
+  double getAccelerationCommand() const {assert(acc_); return *acc_;}
 
 private:
   double* vel_;
