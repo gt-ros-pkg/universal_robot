@@ -1,6 +1,6 @@
 
 #include <joint_trajectory_controller/hardware_interface_adapter.h>
-#include <hardware_interface/pos_vel_acc_joint_interface.h>
+#include <ur_ctrl_client/pos_vel_acc_joint_iface.h>
 #include <trajectory_interface/pos_vel_acc_state.h>
 #include <boost/scoped_ptr.hpp>
 #include <std_msgs/Float64MultiArray.h>
