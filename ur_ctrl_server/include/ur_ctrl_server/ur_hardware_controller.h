@@ -8,7 +8,6 @@
 #include <microprocessor_definitions.h>
 
 #define MSG_BUFFER_SIZE 10
-#define CMD_TIMEOUT 3
 
 namespace ur {
 

@@ -12,7 +12,6 @@ int main(int argc, char** argv)
   ros::AsyncSpinner spinner(1);
   spinner.start();
 
-
   ros::NodeHandle nh;
   ros::NodeHandle nh_priv("~");
   std::string robot_ip;
@@ -29,15 +28,19 @@ int main(int argc, char** argv)
   for(int i=0;i<6;i++)
     joint_names.push_back(v[i]);
 
+  double ctrl_loop_rate = 125.0;
+  nh_priv.getParam("ctrl_loop_rate", ctrl_loop_rate);
+
   URRobotHW ur_hw(nh, joint_names);
   ur_hw.init(robot_ip);
 
   controller_manager::ControllerManager cm(&ur_hw, nh);
 
-  ros::Duration period(1.0/125.0);
+  ros::Duration period(1.0/ctrl_loop_rate);
   while (ros::ok()) {
     ur_hw.read();
     cm.update(ros::Time::now(), period);
     ur_hw.write();
+    period.sleep();
   }
 }

@@ -6,6 +6,7 @@ project(ur_ctrl_client)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS 
   ur_ctrl_server 
+  simple_message
   controller_manager controller_interface control_toolbox realtime_tools sensor_msgs)
 
 ## System dependencies are found with CMake's conventions
@@ -47,8 +48,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-    CATKIN_DEPENDS controller_manager controller_interface control_toolbox
-    INCLUDE_DIRS include
+  CATKIN_DEPENDS controller_manager controller_interface control_toolbox simple_message ur_ctrl_server
+  INCLUDE_DIRS include
+  LIBRARIES ur_ctrl_client
 )
 
 ###########
@@ -75,16 +77,22 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 #   ur_ctrl_msgs
 # )
 
-add_executable(ur_ctrl_man
-  src/ur_ctrl_man.cpp 
+add_library(ur_ctrl_client
   src/ur_robot_hw.cpp
   src/ur_msg_handlers.cpp
 )
-target_link_libraries(ur_ctrl_man 
+target_link_libraries(ur_ctrl_client
   simple_message_float64 
   controller_manager
   control_toolbox
   ur_ctrl_msgs
+)
+
+add_executable(ur_ctrl_man
+  src/ur_ctrl_man.cpp 
+)
+target_link_libraries(ur_ctrl_man 
+  ur_ctrl_client
 )
 
 # add_library(ur_test_controller
@@ -107,6 +115,10 @@ target_link_libraries(ur_ctrl_man
 #############
 ## Install ##
 #############
+
+install(TARGETS ur_ctrl_client
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
 
 # all install targets should use catkin DESTINATION variables
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html

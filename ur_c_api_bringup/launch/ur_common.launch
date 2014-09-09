@@ -12,12 +12,13 @@
 <launch>
   <!-- robot_ip: IP-address of the robot's socket-messaging server -->
   <arg name="robot_ip" />
+  <arg name="is_test_server" default="false"/>
   
   <!-- copy the specified IP address to be consistant with ROS-Industrial spec.
   NOTE: The ip address is actually passed to the driver on the command line -->
   <param name="/robot_ip_address" type="str" value="$(arg robot_ip)"/>
   
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
   <!-- load basic ros control controllers -->
   <include file="$(find ur_controllers)/launch/load_default_controllers.launch" />
@@ -25,6 +26,7 @@
   <!-- start controller manager -->
   <include file="$(find ur_ctrl_client)/launch/ur_ctrl_client_manager.launch" >
     <arg name="robot_ip" value="$(arg robot_ip)" />
+    <arg name="is_test_server" value="$(arg is_test_server)" />
   </include>
    
   <!-- TF Buffer Server -->

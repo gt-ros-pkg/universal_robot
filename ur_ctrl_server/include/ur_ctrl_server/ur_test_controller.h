@@ -3,8 +3,6 @@
 
 #include <ur_ctrl_server/ur_controller_iface.h>
 
-#define CMD_TIMEOUT 3
-
 namespace ur {
 
 class URTestController : public URControllerInterface

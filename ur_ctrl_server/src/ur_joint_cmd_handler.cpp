@@ -20,10 +20,10 @@ bool URJointCommandHandler::internalCB(SimpleMessage& in)
     LOG_ERROR("Failed to load URJointCommand from SimpleMessage");
     return false;
   }
-  if(ur_jnt_cmd_->sequence > last_sequence_) {
+  // if(ur_jnt_cmd_->sequence > last_sequence_) {
     last_sequence_ = ur_jnt_cmd_->sequence;
     has_updated_ = true;
-  }
+  // }
   return true;
 }
 

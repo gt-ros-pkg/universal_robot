@@ -20,10 +20,10 @@ typedef industrial::udp_client::UdpClient SimpleClient;
 #include "realtime_tools/realtime_publisher.h"
 #include "hardware_interface/robot_hw.h"
 
-#include "ur_ctrl_client/pos_vel_acc_joint_iface.h"
 #include "ur_ctrl_client/ur_torque_joint_iface.h"
 #include "ur_ctrl_client/joint_mode_iface.h"
 #include "ur_ctrl_client/ur_config_iface.h"
+#include "ur_ctrl_client/pos_vel_acc_joint_iface.h"
 
 #include "ur_ctrl_server/simple_msgs/ur_joint_cmd.h"
 #include "ur_ctrl_server/simple_msgs/ur_config_cmd.h"

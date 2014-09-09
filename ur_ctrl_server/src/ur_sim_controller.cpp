@@ -28,6 +28,12 @@ void URSimController::readRobotState()
 
 void URSimController::sendRobotCommands()
 {
+  if(ur_state.sequence % 125 == 0) {
+    printf("Sequence %4d", ur_state.sequence/125);
+    if(!connection->isConnected())
+      printf(" [Not connected]");
+    printf("\n");
+  }
   ////////////////////////////// Joint commands ///////////////////////////////
 
   if(jnt_cmd.mode == ur::URJointCommandModes::EMPTY) {
