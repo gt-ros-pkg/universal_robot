@@ -23,6 +23,7 @@ private:
   double q_cur[6];
   double qd_cur[6];
   double qdd_cur[6];
+  double q_target[6];
 
 };
 

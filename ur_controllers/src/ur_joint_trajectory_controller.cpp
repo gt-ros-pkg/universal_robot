@@ -34,27 +34,16 @@
 #include <trajectory_interface/quintic_spline_segment.h>
 #include <joint_trajectory_controller/joint_trajectory_controller.h>
 
-namespace velocity_controllers
-{
-  /**
-   * \brief Joint trajectory controller that represents trajectory segments as <b>quintic splines</b> and sends
-   * commands to a \b velocity interface.
-   */
-  typedef joint_trajectory_controller::JointTrajectoryController<trajectory_interface::QuinticSplineSegment<double>,
-                                                                 hardware_interface::VelocityJointInterface>
-          JointTrajectoryController;
-}
-
 namespace pos_vel_acc_controllers
 {
   /**
    * \brief Joint trajectory controller that represents trajectory segments as <b>quintic splines</b> and sends
    * commands to an \b position/velocity/acceleration interface.
    */
-  typedef joint_trajectory_controller::JointTrajectoryController<trajectory_interface::QuinticSplineSegment<double>,
-                                                                 hardware_interface::PosVelAccJointInterface>
-          JointTrajectoryController;
+  typedef trajectory_interface::QuinticSplineSegment<double> SegmentImpl;
+  typedef typename joint_trajectory_controller::JointTrajectorySegment<SegmentImpl>::State State;
+  typedef HardwareInterfaceAdapter<hardware_interface::PosVelAccJointInterface, State> HwIfaceAdapter;
+  typedef joint_trajectory_controller::JointTrajectoryController<SegmentImpl, HwIfaceAdapter> JointTrajectoryController;
 }
 
-PLUGINLIB_EXPORT_CLASS(velocity_controllers::JointTrajectoryController, controller_interface::ControllerBase)
 PLUGINLIB_EXPORT_CLASS(pos_vel_acc_controllers::JointTrajectoryController,   controller_interface::ControllerBase)

@@ -14,6 +14,7 @@ template <class State>
 class HardwareInterfaceAdapter<hardware_interface::PosVelAccJointInterface, State>
 {
 public:
+  typedef hardware_interface::PosVelAccJointInterface HwIface;
   HardwareInterfaceAdapter() : joint_handles_ptr_(0) {}
 
   bool init(std::vector<hardware_interface::PosVelAccJointHandle>& joint_handles, 
