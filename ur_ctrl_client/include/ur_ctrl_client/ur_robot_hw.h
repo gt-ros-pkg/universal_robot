@@ -61,8 +61,8 @@ public:
 
   void init(std::string& robot_ip);
   void clearCommands();
-  void read();
-  void write();
+  void read(ros::Time time, ros::Duration period);
+  void write(ros::Time time, ros::Duration period);
 
 private:
 

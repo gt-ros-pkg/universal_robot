@@ -36,7 +36,7 @@ int main(int argc, char** argv)
   nh_priv.getParam("ctrl_loop_rate", ctrl_loop_rate);
 
   urdf::Model urdf_model;
-  if(urdf_model.initParam("robot_description")) {
+  if(!urdf_model.initParam("robot_description")) {
     ROS_ERROR("ur_ctrl_man requires a URDF in the robot_description parameter.");
     return -1;
   }
@@ -63,10 +63,12 @@ int main(int argc, char** argv)
   controller_manager::ControllerManager cm(&ur_hw, nh);
 
   ros::Duration period(1.0/ctrl_loop_rate);
+  ros::Time now;
   while (ros::ok()) {
-    ur_hw.read();
-    cm.update(ros::Time::now(), period);
-    ur_hw.write();
+    now = ros::Time::now();
+    ur_hw.read(now, period);
+    cm.update(now, period);
+    ur_hw.write(now, period);
     period.sleep();
   }
 }

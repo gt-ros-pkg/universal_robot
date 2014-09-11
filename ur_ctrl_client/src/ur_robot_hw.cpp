@@ -22,7 +22,7 @@ URRobotHW::URRobotHW(ros::NodeHandle& nh, std::vector<std::string>& joint_names,
     jnt_vel_iface_.registerHandle(
         JointHandle(jnt_state_iface_.getHandle(joint_names[i]), &vel_cmd_[i]));
     jnt_torque_iface_.registerHandle(
-        URTorqueJointHandle(jnt_state_iface_.getHandle(joint_names[i]), 
+        URTorqueJointHandle(jnt_vel_iface_.getHandle(joint_names[i]), 
                             &torque_cmd_[i], &torque_vel_cmd_[i], &secu_torque_cmd_[i],
                             &softness_cmd_[i]));
 
@@ -79,7 +79,7 @@ void URRobotHW::clearCommands()
   ur_config_cmd_.clearCommands();
 }
 
-void URRobotHW::read()
+void URRobotHW::read(ros::Time time, ros::Duration period)
 {
   ur_state_hdl_.reset();
 
@@ -90,8 +90,9 @@ void URRobotHW::read()
     return; // check whether we're still getting messages and connected
 }
 
-void URRobotHW::write()
+void URRobotHW::write(ros::Time time, ros::Duration period)
 {
+  jnt_limits_iface_.enforceLimits(period);
   // Process latest commands if they are updated
   ur_joint_cmd_.mode = joint_mode_;
   switch(ur_joint_cmd_.mode) {
