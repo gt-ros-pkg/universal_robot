@@ -21,6 +21,8 @@ typedef industrial::udp_client::UdpClient SimpleClient;
 #include "hardware_interface/robot_hw.h"
 #include "hardware_interface/pos_vel_acc_joint_interface.h"
 
+#include <joint_limits_interface/joint_limits_interface.h>
+
 #include "ur_ctrl_client/ur_torque_joint_iface.h"
 #include "ur_ctrl_client/joint_mode_iface.h"
 #include "ur_ctrl_client/ur_config_iface.h"
@@ -43,13 +45,19 @@ using hardware_interface::JointHandle;
 using hardware_interface::JointModeInterface;
 using hardware_interface::JointModeHandle;
 
+using joint_limits_interface::VelocityJointSoftLimitsHandle;
+using joint_limits_interface::VelocityJointSoftLimitsInterface;
+using joint_limits_interface::JointLimits;
+using joint_limits_interface::SoftJointLimits;
+
 namespace ur
 {
 
 class URRobotHW : public hardware_interface::RobotHW
 {
 public:
-  URRobotHW(ros::NodeHandle& nh, std::vector<std::string>& joint_names);
+  URRobotHW(ros::NodeHandle& nh, std::vector<std::string>& joint_names, 
+            JointLimits limits[6], SoftJointLimits soft_limits[6]);
 
   void init(std::string& robot_ip);
   void clearCommands();
@@ -73,12 +81,13 @@ private:
   URStateData ur_state_data_;
 
   // ros_control interfaces
-  JointStateInterface     jnt_state_iface_;
-  PosVelAccJointInterface jnt_pos_vel_acc_iface_;
-  VelocityJointInterface  jnt_vel_iface_;
-  URTorqueJointInterface  jnt_torque_iface_;
-  JointModeInterface      jnt_mode_iface_;
-  URConfigInterface       config_iface_;
+  JointStateInterface               jnt_state_iface_;
+  PosVelAccJointInterface           jnt_pos_vel_acc_iface_;
+  VelocityJointInterface            jnt_vel_iface_;
+  URTorqueJointInterface            jnt_torque_iface_;
+  VelocityJointSoftLimitsInterface  jnt_limits_iface_;
+  JointModeInterface                jnt_mode_iface_;
+  URConfigInterface                 config_iface_;
   
   boost::recursive_mutex config_lock_;
 

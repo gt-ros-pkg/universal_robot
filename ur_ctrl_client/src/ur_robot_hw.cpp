@@ -4,7 +4,8 @@
 namespace ur
 {
 
-URRobotHW::URRobotHW(ros::NodeHandle& nh, std::vector<std::string>& joint_names) :
+URRobotHW::URRobotHW(ros::NodeHandle& nh, std::vector<std::string>& joint_names, 
+                     JointLimits limits[6], SoftJointLimits soft_limits[6]) :
   nh_(nh)
 {
   // Register individual joint interface handles
@@ -24,6 +25,10 @@ URRobotHW::URRobotHW(ros::NodeHandle& nh, std::vector<std::string>& joint_names)
         URTorqueJointHandle(jnt_state_iface_.getHandle(joint_names[i]), 
                             &torque_cmd_[i], &torque_vel_cmd_[i], &secu_torque_cmd_[i],
                             &softness_cmd_[i]));
+
+    // register joint limits
+    jnt_limits_iface_.registerHandle(
+        VelocityJointSoftLimitsHandle(jnt_vel_iface_.getHandle(joint_names[i]), limits[i], soft_limits[i]));
   }
   // Register joint command mode
   jnt_mode_iface_.registerHandle(JointModeHandle("joint_command_mode", &joint_mode_));
@@ -36,6 +41,7 @@ URRobotHW::URRobotHW(ros::NodeHandle& nh, std::vector<std::string>& joint_names)
   registerInterface(&jnt_pos_vel_acc_iface_);
   registerInterface(&jnt_vel_iface_);
   registerInterface(&jnt_torque_iface_);
+  registerInterface(&jnt_limits_iface_);
   registerInterface(&jnt_mode_iface_);
   registerInterface(&config_iface_);
 }
@@ -86,8 +92,6 @@ void URRobotHW::read()
 
 void URRobotHW::write()
 {
-  //printf("write()\n");
-
   // Process latest commands if they are updated
   ur_joint_cmd_.mode = joint_mode_;
   switch(ur_joint_cmd_.mode) {

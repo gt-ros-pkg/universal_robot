@@ -6,7 +6,9 @@ project(ur_ctrl_client)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS 
   ur_ctrl_server 
+  urdf
   simple_message
+  joint_limits_interface
   controller_manager controller_interface control_toolbox realtime_tools sensor_msgs)
 
 ## System dependencies are found with CMake's conventions
@@ -93,6 +95,7 @@ add_executable(ur_ctrl_man
 )
 target_link_libraries(ur_ctrl_man 
   ur_ctrl_client
+  urdf
 )
 
 # add_library(ur_test_controller

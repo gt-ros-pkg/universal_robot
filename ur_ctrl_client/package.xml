@@ -51,7 +51,9 @@
   <build_depend>control_toolbox</build_depend>
   <build_depend>controller_interface</build_depend>
   <build_depend>controller_manager</build_depend>
+  <build_depend>joint_limits_interface</build_depend>
   <build_depend>ur_ctrl_server</build_depend>
+  <build_depend>urdf</build_depend>
   <run_depend>industrial_msgs</run_depend>
   <run_depend>industrial_robot_client</run_depend>
   <run_depend>sensor_msgs</run_depend>
@@ -59,7 +61,9 @@
   <run_depend>control_toolbox</run_depend>
   <run_depend>controller_interface</run_depend>
   <run_depend>controller_manager</run_depend>
+  <run_depend>joint_limits_interface</run_depend>
   <run_depend>ur_ctrl_server</run_depend>
+  <run_depend>urdf</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

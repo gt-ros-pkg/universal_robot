@@ -1,7 +1,11 @@
 
 #include <ros/ros.h>
+#include <urdf/model.h>
 #include <controller_manager/controller_manager.h>
 #include <ur_ctrl_client/ur_robot_hw.h>
+#include <joint_limits_interface/joint_limits.h>
+#include <joint_limits_interface/joint_limits_urdf.h>
+#include <joint_limits_interface/joint_limits_rosparam.h>
 
 using namespace ur;
 
@@ -31,7 +35,29 @@ int main(int argc, char** argv)
   double ctrl_loop_rate = 125.0;
   nh_priv.getParam("ctrl_loop_rate", ctrl_loop_rate);
 
-  URRobotHW ur_hw(nh, joint_names);
+  urdf::Model urdf_model;
+  if(urdf_model.initParam("robot_description")) {
+    ROS_ERROR("ur_ctrl_man requires a URDF in the robot_description parameter.");
+    return -1;
+  }
+
+  joint_limits_interface::JointLimits ur_limits[6];
+  joint_limits_interface::SoftJointLimits ur_soft_limits[6];
+  for(int i=0;i<6;i++) {
+    boost::shared_ptr<const urdf::Joint> urdf_joint = urdf_model.getJoint(joint_names[i]);
+    bool urdf_found_limits = getJointLimits(urdf_joint, ur_limits[i]);
+    bool param_srv_found_limits = getJointLimits(joint_names[i], nh_priv, ur_limits[i]);
+    if(!urdf_found_limits && !param_srv_found_limits) {
+      ROS_ERROR("Couldn't find limits for joint %s", joint_names[i].c_str());
+      return -1;
+    }
+    ur_soft_limits[i].min_position = ur_limits[i].min_position;
+    ur_soft_limits[i].max_position = ur_limits[i].max_position;
+    ur_soft_limits[i].k_position = 10.0;
+    getSoftJointLimits(joint_names[i], nh_priv, ur_soft_limits[i]);
+  }
+
+  URRobotHW ur_hw(nh, joint_names, ur_limits, ur_soft_limits);
   ur_hw.init(robot_ip);
 
   controller_manager::ControllerManager cm(&ur_hw, nh);
