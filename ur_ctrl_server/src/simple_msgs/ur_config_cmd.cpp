@@ -106,7 +106,7 @@ void URConfigCommand::addCommand(const URConfigCommand* new_cmd)
   if(new_cmd->func_calls & URI_SET_TCP_PAYLOAD_COG) {
     for(int i=0;i<6;i++) set_tcp_payload_cog[i] = new_cmd->set_tcp_payload_cog[i];
   }
-  if(new_cmd->func_calls & URI_SET_TCP_PAYLOAD_COG) {
+  if(new_cmd->func_calls & URI_SET_TCP_PAYLOAD) {
     set_tcp_payload = new_cmd->set_tcp_payload;
   }
 }

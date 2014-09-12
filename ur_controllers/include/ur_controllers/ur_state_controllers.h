@@ -12,6 +12,7 @@
 #include <diagnostic_msgs/DiagnosticArray.h>
 
 #include <std_msgs/Int32.h>
+#include <std_msgs/Float64.h>
 #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Bool.h>
 
@@ -35,6 +36,10 @@ public:
 
     mode_id_rt_pub_.reset(new RealtimePublisher<std_msgs::Int32>(
                           n, "robot_mode_id", 1, true));
+    force_scalar_pub_.reset(new RealtimePublisher<std_msgs::Float64>(
+                          n, "tcp_force_scalar", 1, true));
+    tcp_payload_pub_.reset(new RealtimePublisher<std_msgs::Float64>(
+                          n, "tcp_payload", 1, true));
     jnt_modes_rt_pub_.reset(new RealtimePublisher<std_msgs::Int32MultiArray>(
                             n, "joint_mode_ids", 1, true));
     jnt_modes_rt_pub_->msg_.data.resize(6);
@@ -82,6 +87,16 @@ public:
       else mode_id_rt_pub_->unlock();
     }
 
+    if(tcp_payload_pub_->trylock()) {
+      tcp_payload_pub_->msg_.data = config_hdl_.getTCPPayload();
+      tcp_payload_pub_->unlockAndPublish();
+    }
+
+    if(force_scalar_pub_->trylock()) {
+      force_scalar_pub_->msg_.data = config_hdl_.getTCPForceScalar();
+      force_scalar_pub_->unlockAndPublish();
+    }
+
     if(jnt_modes_rt_pub_->trylock()) {
       config_hdl_.getJointModeIDs(cur_joint_ids_);
       bool joint_ids_changed = false;
@@ -119,6 +134,8 @@ private:
   boost::shared_ptr<RealtimePublisher<std_msgs::Int32> > mode_id_rt_pub_;
   boost::shared_ptr<RealtimePublisher<std_msgs::Int32MultiArray> > jnt_modes_rt_pub_;
   std::vector<boost::shared_ptr<RealtimePublisher<std_msgs::Bool> > > bool_rt_pubs_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64> > force_scalar_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64> > tcp_payload_pub_;
   bool first_update_;
   std::vector<bool> cur_bool_states_;
   std::vector<int> cur_joint_ids_;

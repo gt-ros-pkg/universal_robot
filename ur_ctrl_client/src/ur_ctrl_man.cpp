@@ -63,12 +63,12 @@ int main(int argc, char** argv)
   controller_manager::ControllerManager cm(&ur_hw, nh);
 
   ros::Duration period(1.0/ctrl_loop_rate);
-  ros::Time now;
+  ros::Time now = ros::Time::now();
   while (ros::ok()) {
-    now = ros::Time::now();
     ur_hw.read(now, period);
     cm.update(now, period);
     ur_hw.write(now, period);
     period.sleep();
+    now = now + period;
   }
 }
