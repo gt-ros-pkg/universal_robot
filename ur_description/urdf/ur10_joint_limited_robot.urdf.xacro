@@ -9,7 +9,7 @@
   <xacro:include filename="$(find ur_description)/urdf/ur10.urdf.xacro" />
 
   <!-- arm -->
-  <xacro:ur10_robot prefix="" 
+  <xacro:ur10_robot prefix="" cylinders_collision="false"
                     j1_lwr_lmt="${-pi}" j1_upr_lmt="${pi}" j1_vel_lmt="2.16"
                     j2_lwr_lmt="${-pi}" j2_upr_lmt="${pi}" j2_vel_lmt="2.16"
                     j3_lwr_lmt="${-pi}" j3_upr_lmt="${pi}" j3_vel_lmt="3.15"
