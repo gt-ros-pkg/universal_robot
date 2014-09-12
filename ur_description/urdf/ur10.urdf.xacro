@@ -75,20 +75,22 @@
         <origin xyz="0.0 0.0 0.0" rpy="${pi / 2.0} 0.0 0.0" />
         <material name="UR/Blue" />
       </visual>
-      <collision>
-        <xacro:if value="${cylinders_collision}">
+      <xacro:if value="${cylinders_collision}">
+        <collision>
           <geometry>
             <cylinder length="0.04" radius="0.10" />
           </geometry>
         <origin xyz="0.0 0.0 0.02" rpy="0.0 0.0 0.0" />
-        </xacro:if>
-        <xacro:unless value="${cylinders_collision}">
+        </collision>
+      </xacro:if>
+      <xacro:unless value="${cylinders_collision}">
+        <collision>
           <geometry>
             <mesh filename="package://ur_description/meshes/ur10/collision/Base.dae" scale="${scale}"/>
           </geometry>
           <origin xyz="0.0 0.0 0.0" rpy="${pi / 2.0} 0.0 0.0" />
-        </xacro:unless>
-      </collision>
+        </collision>
+      </xacro:unless>
       <xacro:cylinder_inertial radius="0.075" length="0.038" mass="${base_mass}">
         <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
       </xacro:cylinder_inertial>
@@ -111,20 +113,22 @@
         <origin rpy="${pi / 2.0} 0.0 0.0" xyz="0.0 0.0 -0.127"/>   <!-- -0.127 ????  -->
         <material name="UR/Grey" />
       </visual>
-      <collision>
-        <xacro:if value="${cylinders_collision}">
+      <xacro:if value="${cylinders_collision}">
+        <collision>
           <geometry>
             <cylinder length="0.171" radius="0.08" />
           </geometry>
           <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
-        </xacro:if>
-        <xacro:unless value="${cylinders_collision}">
+        </collision>
+      </xacro:if>
+      <xacro:unless value="${cylinders_collision}">
+        <collision>
           <geometry>
             <mesh filename="package://ur_description/meshes/ur10/collision/Shoulder.dae" scale="${scale}"/>
           </geometry>
           <origin rpy="${pi / 2.0} 0.0 0.0" xyz="0.0 0.0 -0.127"/>   <!-- -0.127 ????  -->
-        </xacro:unless>
-      </collision>
+        </collision>
+      </xacro:unless>
       <xacro:cylinder_inertial radius="0.075" length="0.178" mass="${shoulder_mass}">
         <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
       </xacro:cylinder_inertial>
@@ -147,20 +151,28 @@
         <origin xyz="0.0 -0.221 -0.127" rpy="${pi / 2.0} 0.0 0.0" />  <!-- new offset-->
         <material name="UR/Blue" />
       </visual>
-      <collision>
-        <xacro:if value="${cylinders_collision}">
+      <xacro:if value="${cylinders_collision}">
+        <collision>
           <geometry>
-            <cylinder length="${-ur10_a2+0.15}" radius="0.058" />
+            <cylinder length="${-ur10_a2+0.02}" radius="0.058" />
           </geometry>
           <origin xyz="0.0 -0.042 ${(-ur10_a2+0.15)/2-0.08}" rpy="0.0 0.0 0.0" />
-        </xacro:if>
-        <xacro:unless value="${cylinders_collision}">
+        </collision>
+        <collision>
+          <geometry>
+            <cylinder length="0.24" radius="0.08" />
+          </geometry>
+          <origin xyz="0.0 -0.08 0.0" rpy="${pi/2} 0.0 0.0" />
+        </collision>
+      </xacro:if>
+      <xacro:unless value="${cylinders_collision}">
+        <collision>
           <geometry>
             <mesh filename="package://ur_description/meshes/ur10/collision/UpperArm.dae" scale="${scale}"/>
           </geometry>
           <origin xyz="0.0 -0.221 -0.127" rpy="${pi / 2.0} 0.0 0.0" />  <!-- new offset-->
-        </xacro:unless>
-      </collision>
+        </collision>
+      </xacro:unless>
       <xacro:cylinder_inertial radius="0.075" length="${-ur10_a2}" mass="${upper_arm_mass}">
         <origin xyz="0.0 0.0 ${-ur10_a2/2.0}" rpy="0 0 0" />
       </xacro:cylinder_inertial>
@@ -183,20 +195,28 @@
         <origin xyz="0.0 -0.049 -0.739" rpy="${pi / 2.0} 0.0 0.0" />  <!-- new offset -->
         <material name="UR/Grey" />
       </visual>
-      <collision>
-        <xacro:if value="${cylinders_collision}">
+      <xacro:if value="${cylinders_collision}">
+        <collision>
           <geometry>
             <cylinder length="${(-ur10_a3+0.05)}" radius="0.048" />
           </geometry>
           <origin xyz="0.0 0.0 ${(-ur10_a3+0.05)/2-0.06}" rpy="0.0 0.0 0.0" />
-        </xacro:if>
-        <xacro:unless value="${cylinders_collision}">
+        </collision>
+        <collision>
+          <geometry>
+            <cylinder length="0.26" radius="0.06" />
+          </geometry>
+          <origin xyz="0.0 0.064 0.0" rpy="${pi/2} 0.0 0.0" />
+        </collision>
+      </xacro:if>
+      <xacro:unless value="${cylinders_collision}">
+        <collision>
           <geometry>
             <mesh filename="package://ur_description/meshes/ur10/collision/Forearm.dae" scale="${scale}"/>
           </geometry>
           <origin xyz="0.0 -0.049 -0.739" rpy="${pi / 2.0} 0.0 0.0" />  <!-- new offset -->
-        </xacro:unless>
-      </collision>
+        </collision>
+      </xacro:unless>
       <xacro:cylinder_inertial radius="0.075" length="${-ur10_a3}" mass="${forearm_mass}">
         <origin xyz="0.0 0.0 ${-ur10_a3/2.0}" rpy="0 0 0" />
       </xacro:cylinder_inertial>
@@ -219,20 +239,22 @@
         <origin xyz="0.0 -0.049 -1.312" rpy="${pi / 2.0} 0 0.0" />  <!-- new offset -->
         <material name="UR/Blue" />
       </visual>
-      <collision>
-        <xacro:if value="${cylinders_collision}">
+      <xacro:if value="${cylinders_collision}">
+        <collision>
           <geometry>
-            <cylinder length="0.12" radius="0.047" />
+            <cylinder length="0.16" radius="0.047" />
           </geometry>
-          <origin xyz="0.0 0.01 0.0" rpy="${pi/2} 0.0 0.0" />
-        </xacro:if>
-        <xacro:unless value="${cylinders_collision}">
+          <origin xyz="0.0 0.025 0.0" rpy="${pi/2} 0.0 0.0" />
+        </collision>
+      </xacro:if>
+      <xacro:unless value="${cylinders_collision}">
+        <collision>
           <geometry>
             <mesh filename="package://ur_description/meshes/ur10/collision/Wrist1.dae" scale="${scale}"/>
           </geometry>
           <origin xyz="0.0 -0.049 -1.312" rpy="${pi / 2.0} 0 0.0" />  <!-- new offset -->
-        </xacro:unless>
-      </collision>
+        </collision>
+      </xacro:unless>
       <xacro:cylinder_inertial radius="0.075" length="0.12" mass="${wrist_1_mass}">
         <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
       </xacro:cylinder_inertial>
@@ -255,20 +277,22 @@
         <origin xyz="0.0 -0.164 -1.312" rpy="${pi / 2.0} 0.0 0.0" />  <!-- new offset -->
         <material name="UR/Grey" />
       </visual>
-      <collision>
-        <xacro:if value="${cylinders_collision}">
+      <xacro:if value="${cylinders_collision}">
+        <collision>
           <geometry>
             <cylinder length="0.18" radius="0.046" />
           </geometry>
           <origin xyz="0.0 0.0 0.032" rpy="0.0 0.0 0.0" />
-        </xacro:if>
-        <xacro:unless value="${cylinders_collision}">
+        </collision>
+      </xacro:if>
+      <xacro:unless value="${cylinders_collision}">
+        <collision>
           <geometry>
             <mesh filename="package://ur_description/meshes/ur10/collision/Wrist2.dae" scale="${scale}"/>
           </geometry>
           <origin xyz="0.0 -0.164 -1.312" rpy="${pi / 2.0} 0.0 0.0" />  <!-- new offset -->
-        </xacro:unless>
-      </collision>
+        </collision>
+      </xacro:unless>
       <xacro:cylinder_inertial radius="0.075" length="0.12" mass="${wrist_2_mass}">
         <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
       </xacro:cylinder_inertial>
@@ -291,20 +315,22 @@
          <origin xyz="0.0 -0.164 -1.427" rpy="${pi / 2.0} 0.0 0" />   <!-- new offset -->
         <material name="UR/Blue" />
       </visual>
-      <collision>
-        <xacro:if value="${cylinders_collision}">
+      <xacro:if value="${cylinders_collision}">
+        <collision>
           <geometry>
             <cylinder length="0.147" radius="0.046" />
           </geometry>
           <origin xyz="0.0 0.017 0.0" rpy="${pi/2} 0.0 0.0" />
-        </xacro:if>
-        <xacro:unless value="${cylinders_collision}">
+        </collision>
+      </xacro:if>
+      <xacro:unless value="${cylinders_collision}">
+        <collision>
           <geometry>
             <mesh filename="package://ur_description/meshes/ur10/collision/Wrist3.dae" scale="${scale}"/>
           </geometry>
            <origin xyz="0.0 -0.164 -1.427" rpy="${pi / 2.0} 0.0 0" />   <!-- new offset -->
-        </xacro:unless>
-      </collision>
+        </collision>
+      </xacro:unless>
       <xacro:cylinder_inertial radius="0.075" length="0.12" mass="${wrist_3_mass}">
         <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
       </xacro:cylinder_inertial>
