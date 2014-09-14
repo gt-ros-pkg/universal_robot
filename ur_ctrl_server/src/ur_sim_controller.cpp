@@ -15,7 +15,7 @@ URSimController::URSimController(SimpleSocket* socket_conn)
 int URSimController::initRobot(int argc, char** argv)
 {
   for(int i=0;i<6;i++) 
-    q_target[i] = 0.0;
+    qdd_act[i] = 0.0;
   ur_state.robot_mode_id = 8;
   return 0;
 }
@@ -44,13 +44,11 @@ void URSimController::sendRobotCommands()
 
   else if(jnt_cmd.mode == ur::URJointCommandModes::VEL) {
     for(int i=0;i<6;i++) {
-      const double dt = 0.008; // 0.008 s = 125 Hz
-      double q_last = ur_state.q_act[i];
-      q_target[i] += jnt_cmd.qd[i]*dt;
-      double u = 100.0*(q_target[i] - ur_state.q_act[i]);
-      ur_state.q_act[i] += u*dt; 
-      ur_state.qd_act[i] = (ur_state.q_act[i] - q_last)/dt; 
-      ur_state.i_act[i] = 0.0; 
+      static const double dt = 0.001;
+      static const double gain = 1000.0;
+      qdd_act[i] = gain*(jnt_cmd.qd[i] - ur_state.qd_act[i]);
+      ur_state.qd_act[i] += qdd_act[i]*dt; 
+      ur_state.q_act[i] += ur_state.qd_act[i]*dt; 
     }
   }
 
