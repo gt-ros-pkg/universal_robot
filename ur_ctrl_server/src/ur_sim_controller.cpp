@@ -44,8 +44,8 @@ void URSimController::sendRobotCommands()
 
   else if(jnt_cmd.mode == ur::URJointCommandModes::VEL) {
     for(int i=0;i<6;i++) {
-      static const double dt = 0.001;
-      static const double gain = 1000.0;
+      static const double dt = 0.008;
+      static const double gain = 100.0;
       qdd_act[i] = gain*(jnt_cmd.qd[i] - ur_state.qd_act[i]);
       ur_state.qd_act[i] += qdd_act[i]*dt; 
       ur_state.q_act[i] += ur_state.qd_act[i]*dt; 

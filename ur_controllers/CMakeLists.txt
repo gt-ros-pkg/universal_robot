@@ -69,7 +69,7 @@ add_library(ur_controllers
   src/ur_forward_cmd_controllers.cpp
   src/ur_state_controllers.cpp
   src/ur_switch_mode_controllers.cpp
-  src/ur_joint_trajectory_controller.cpp
+  #  src/ur_joint_trajectory_controller.cpp
 )
 target_link_libraries(ur_controllers
   simple_message_float64 
