@@ -15,6 +15,7 @@
 #include <std_msgs/Float64.h>
 #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Float64MultiArray.h>
+#include <geometry_msgs/WrenchStamped.h>
 #include <std_msgs/Bool.h>
 
 #include <ur_ctrl_client/ur_config_iface.h>
@@ -34,6 +35,10 @@ public:
   bool init(ur::URConfigInterface* hw, ros::NodeHandle &n)
   {
     config_hdl_ = hw->getHandle("config_command");
+
+    double pub_rate = 125.0;
+    n.getParam("publish_rate", pub_rate);
+    pub_period_ = 1.0/pub_rate;
 
     act_q_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
                             n, "actual_q", 1, true));
@@ -68,15 +73,17 @@ public:
     moment_des_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
                             n, "moment_desred", 1, true));
     moment_des_pub_->msg_.data.resize(6);
-    tcp_force_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
-                            n, "tcp_force", 1, true));
-    tcp_force_pub_->msg_.data.resize(6);
     tcp_speed_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
                             n, "tcp_speed", 1, true));
     tcp_speed_pub_->msg_.data.resize(6);
-    tcp_wrench_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
+    tcp_force_pub_.reset(new RealtimePublisher<geometry_msgs::WrenchStamped>(
+                            n, "tcp_force", 1, true));
+    tcp_force_tmp.resize(6);
+    tcp_force_pub_->msg_.header.frame_id = "/base_link";
+    tcp_wrench_pub_.reset(new RealtimePublisher<geometry_msgs::WrenchStamped>(
                             n, "tcp_wrench", 1, true));
-    tcp_wrench_pub_->msg_.data.resize(6);
+    tcp_wrench_tmp.resize(6);
+    tcp_wrench_pub_->msg_.header.frame_id = "/base_link";
     tcp_pose_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
                             n, "tcp_pose", 1, true));
     tcp_pose_pub_->msg_.data.resize(6);
@@ -120,10 +127,16 @@ public:
   void starting(const ros::Time& time) 
   { 
     first_update_ = true;
+    last_pub_time_ = ros::Time();
   }
 
   void update(const ros::Time& time, const ros::Duration& period) 
   {
+    if((time - last_pub_time_).toSec() < pub_period_)
+      return;
+    else
+      last_pub_time_ = time;
+
     cur_bool_states_[0] = config_hdl_.isPowerOnRobot();
     cur_bool_states_[1] = config_hdl_.isSecurityStopped();
     cur_bool_states_[2] = config_hdl_.isEmergencyStopped();
@@ -184,16 +197,28 @@ public:
       config_hdl_.getMomentDes(moment_des_pub_->msg_.data);
       moment_des_pub_->unlockAndPublish();
     }
-    if(tcp_force_pub_->trylock()) {
-      config_hdl_.getTCPForce(tcp_force_pub_->msg_.data);
-      tcp_force_pub_->unlockAndPublish();
-    }
     if(tcp_speed_pub_->trylock()) {
       config_hdl_.getTCPSpeed(tcp_speed_pub_->msg_.data);
       tcp_speed_pub_->unlockAndPublish();
     }
+    if(tcp_force_pub_->trylock()) {
+      config_hdl_.getTCPForce(tcp_force_tmp);
+      tcp_force_pub_->msg_.wrench.force.x = -tcp_force_tmp[0];
+      tcp_force_pub_->msg_.wrench.force.y = -tcp_force_tmp[1];
+      tcp_force_pub_->msg_.wrench.force.z = tcp_force_tmp[2];
+      tcp_force_pub_->msg_.wrench.torque.x = -tcp_force_tmp[3];
+      tcp_force_pub_->msg_.wrench.torque.y = -tcp_force_tmp[4];
+      tcp_force_pub_->msg_.wrench.torque.z = tcp_force_tmp[5];
+      tcp_force_pub_->unlockAndPublish();
+    }
     if(tcp_wrench_pub_->trylock()) {
-      config_hdl_.getTCPWrench(tcp_wrench_pub_->msg_.data);
+      config_hdl_.getTCPWrench(tcp_wrench_tmp);
+      tcp_wrench_pub_->msg_.wrench.force.x = -tcp_wrench_tmp[0];
+      tcp_wrench_pub_->msg_.wrench.force.y = -tcp_wrench_tmp[1];
+      tcp_wrench_pub_->msg_.wrench.force.z = tcp_wrench_tmp[2];
+      tcp_wrench_pub_->msg_.wrench.torque.x = -tcp_wrench_tmp[3];
+      tcp_wrench_pub_->msg_.wrench.torque.y = -tcp_wrench_tmp[4];
+      tcp_wrench_pub_->msg_.wrench.torque.z = tcp_wrench_tmp[5];
       tcp_wrench_pub_->unlockAndPublish();
     }
     if(tcp_pose_pub_->trylock()) {
@@ -264,9 +289,9 @@ private:
   boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > acc_y_pub_;
   boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > acc_z_pub_;
   boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > moment_des_pub_;
-  boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > tcp_force_pub_;
   boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > tcp_speed_pub_;
-  boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > tcp_wrench_pub_;
+  boost::shared_ptr<RealtimePublisher<geometry_msgs::WrenchStamped> > tcp_force_pub_;
+  boost::shared_ptr<RealtimePublisher<geometry_msgs::WrenchStamped> > tcp_wrench_pub_;
   boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > tcp_pose_pub_;
   boost::shared_ptr<RealtimePublisher<std_msgs::Float64> > force_scalar_pub_;
   boost::shared_ptr<RealtimePublisher<std_msgs::Float64> > tcp_power_pub_;
@@ -277,8 +302,13 @@ private:
   boost::shared_ptr<RealtimePublisher<std_msgs::Int32MultiArray> > jnt_modes_rt_pub_;
   std::vector<boost::shared_ptr<RealtimePublisher<std_msgs::Bool> > > bool_rt_pubs_;
   bool first_update_;
+  ros::Time last_pub_time_;
+  double pub_period_;
   std::vector<bool> cur_bool_states_;
   std::vector<int> cur_joint_ids_;
+
+  std::vector<double> tcp_force_tmp;
+  std::vector<double> tcp_wrench_tmp;
 };
 
 const char* JOINT_NAMES[6] = { 
