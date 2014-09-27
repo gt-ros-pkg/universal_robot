@@ -10,7 +10,8 @@ class WrenchRot(object):
         self.target_frame = rospy.get_param("~target_frame", "/ee_link")
 
         self.tf_list = TransformListener()
-        self.ws_sub = rospy.Subscriber("old_wrench", WrenchStamped, self.trans_wrench_cb)
+        self.ws_sub = rospy.Subscriber("old_wrench", WrenchStamped, self.trans_wrench_cb,
+                                       queue_size=1)
         self.ws_pub = rospy.Publisher("new_wrench", WrenchStamped)
 
     def trans_wrench_cb(self, ws_old):
@@ -23,7 +24,8 @@ class WrenchRot(object):
         try:
             self.tf_list.waitForTransform(self.target_frame, ws_old.header.frame_id, 
                                           ws_old.header.stamp, rospy.Duration(1.))
-        except:
+        except Exception as e:
+            print e
             rospy.logwarn("Timeout waiting for transform from %s to target frame %s" 
                           % (ws_old.header.frame_id, self.target_frame))
             return
@@ -35,7 +37,7 @@ class WrenchRot(object):
         self.ws_pub.publish(ws_new)
 
 def main():
-    rospy.init_node("wrench_rot")
+    rospy.init_node("wrench_rot", anonymous=True)
     wr = WrenchRot()
     rospy.spin()
 

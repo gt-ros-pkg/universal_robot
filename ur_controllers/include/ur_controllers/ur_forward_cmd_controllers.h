@@ -11,6 +11,7 @@
 #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/Empty.h>
+#include <geometry_msgs/WrenchStamped.h>
 
 #include <hardware_interface/pos_vel_acc_joint_interface.h>
 #include <ur_ctrl_client/ur_config_iface.h>
@@ -206,6 +207,8 @@ public:
   {
     config_hdl_ = hw->getHandle("config_command");
 
+    wrench_tmp_.resize(6);
+
     sub_list_.push_back(n.subscribe<std_msgs::Empty>("open_interface", 1, 
                                         &ConfigForwardController::openRealInterfaceCB, this));
     sub_list_.push_back(n.subscribe<std_msgs::Empty>("open_simulated_interface", 1, 
@@ -230,9 +233,9 @@ public:
                                         &ConfigForwardController::setTCPPayloadCOGCB, this));
     sub_list_.push_back(n.subscribe<std_msgs::Float64>("set_tcp_payload", 1, 
                                         &ConfigForwardController::setTCPPayloadCB, this));
-    sub_list_.push_back(n.subscribe<std_msgs::Float64MultiArray>("set_tcp_wrench_ee", 1, 
+    sub_list_.push_back(n.subscribe<geometry_msgs::WrenchStamped>("set_tcp_wrench_ee", 1, 
                                         &ConfigForwardController::setTCPWrenchEECB, this));
-    sub_list_.push_back(n.subscribe<std_msgs::Float64MultiArray>("set_tcp_wrench_base", 1, 
+    sub_list_.push_back(n.subscribe<geometry_msgs::WrenchStamped>("set_tcp_wrench_base", 1, 
                                         &ConfigForwardController::setTCPWrenchBaseCB, this));
     sub_list_.push_back(n.subscribe<std_msgs::Int32MultiArray>("set_security_stop", 1, 
                                         &ConfigForwardController::setSecurityStopCB, this));
@@ -264,6 +267,7 @@ public:
 private:
   ur::URConfigHandle config_hdl_;
   std::vector<ur::URConfigCommand> config_cmd_buf_;
+  std::vector<double> wrench_tmp_;
 
   std::vector<ros::Subscriber> sub_list_;
   void openRealInterfaceCB(const std_msgs::EmptyConstPtr& msg) 
@@ -288,10 +292,26 @@ private:
   { config_cmd_buf_[9].setTCPPayloadCOG(msg->data); }
   void setTCPPayloadCB(const std_msgs::Float64ConstPtr& msg)
   { config_cmd_buf_[10].setTCPPayload(msg->data); }
-  void setTCPWrenchBaseCB(const std_msgs::Float64MultiArrayConstPtr& msg)
-  { config_cmd_buf_[11].setTCPWrenchBase(msg->data); }
-  void setTCPWrenchEECB(const std_msgs::Float64MultiArrayConstPtr& msg)
-  { config_cmd_buf_[12].setTCPWrenchEE(msg->data); }
+  void setTCPWrenchBaseCB(const geometry_msgs::WrenchStampedConstPtr& msg)
+  { 
+    wrench_tmp_[0] =  msg->wrench.force.x;
+    wrench_tmp_[1] =  msg->wrench.force.y;
+    wrench_tmp_[2] = -msg->wrench.force.z;
+    wrench_tmp_[3] =  msg->wrench.torque.x;
+    wrench_tmp_[4] =  msg->wrench.torque.y;
+    wrench_tmp_[5] = -msg->wrench.torque.z;
+    config_cmd_buf_[11].setTCPWrenchBase(wrench_tmp_); 
+  }
+  void setTCPWrenchEECB(const geometry_msgs::WrenchStampedConstPtr& msg)
+  { 
+    wrench_tmp_[0] =  msg->wrench.force.x;
+    wrench_tmp_[1] =  msg->wrench.force.y;
+    wrench_tmp_[2] = -msg->wrench.force.z;
+    wrench_tmp_[3] =  msg->wrench.torque.x;
+    wrench_tmp_[4] =  msg->wrench.torque.y;
+    wrench_tmp_[5] = -msg->wrench.torque.z;
+    config_cmd_buf_[12].setTCPWrenchEE(wrench_tmp_); 
+  }
   void setFreedriveModeCB(const std_msgs::EmptyConstPtr& msg)
   { config_cmd_buf_[13].setFreedriveMode(); }
   void setSecurityStopCB(const std_msgs::Int32MultiArrayConstPtr& msg)

@@ -209,6 +209,7 @@ public:
       tcp_force_pub_->msg_.wrench.torque.x = -tcp_force_tmp[3];
       tcp_force_pub_->msg_.wrench.torque.y = -tcp_force_tmp[4];
       tcp_force_pub_->msg_.wrench.torque.z = tcp_force_tmp[5];
+      tcp_force_pub_->msg_.header.stamp = time;
       tcp_force_pub_->unlockAndPublish();
     }
     if(tcp_wrench_pub_->trylock()) {
@@ -219,6 +220,7 @@ public:
       tcp_wrench_pub_->msg_.wrench.torque.x = -tcp_wrench_tmp[3];
       tcp_wrench_pub_->msg_.wrench.torque.y = -tcp_wrench_tmp[4];
       tcp_wrench_pub_->msg_.wrench.torque.z = tcp_wrench_tmp[5];
+      tcp_wrench_pub_->msg_.header.stamp = time;
       tcp_wrench_pub_->unlockAndPublish();
     }
     if(tcp_pose_pub_->trylock()) {
