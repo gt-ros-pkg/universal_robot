@@ -14,6 +14,8 @@
 #include <std_msgs/Int32.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/Int32MultiArray.h>
+#include <std_msgs/Float64MultiArray.h>
+#include <geometry_msgs/WrenchStamped.h>
 #include <std_msgs/Bool.h>
 
 #include <ur_ctrl_client/ur_config_iface.h>
@@ -34,12 +36,70 @@ public:
   {
     config_hdl_ = hw->getHandle("config_command");
 
-    mode_id_rt_pub_.reset(new RealtimePublisher<std_msgs::Int32>(
-                          n, "robot_mode_id", 1, true));
+    double pub_rate = 125.0;
+    n.getParam("publish_rate", pub_rate);
+    pub_period_ = 1.0/pub_rate;
+
+    act_q_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
+                            n, "actual_q", 1, true));
+    act_q_pub_->msg_.data.resize(6);
+    act_qd_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
+                            n, "actual_qd", 1, true));
+    act_qd_pub_->msg_.data.resize(6);
+    act_i_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
+                            n, "actual_i", 1, true));
+    act_i_pub_->msg_.data.resize(6);
+    des_q_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
+                            n, "desired_q", 1, true));
+    des_q_pub_->msg_.data.resize(6);
+    des_qd_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
+                            n, "desired_qd", 1, true));
+    des_qd_pub_->msg_.data.resize(6);
+    des_qdd_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
+                            n, "desired_qdd", 1, true));
+    des_qdd_pub_->msg_.data.resize(6);
+    des_i_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
+                            n, "desired_i", 1, true));
+    des_i_pub_->msg_.data.resize(6);
+    acc_x_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
+                            n, "accel_x", 1, true));
+    acc_x_pub_->msg_.data.resize(6);
+    acc_y_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
+                            n, "accel_y", 1, true));
+    acc_y_pub_->msg_.data.resize(6);
+    acc_z_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
+                            n, "accel_z", 1, true));
+    acc_z_pub_->msg_.data.resize(6);
+    moment_des_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
+                            n, "moment_desred", 1, true));
+    moment_des_pub_->msg_.data.resize(6);
+    tcp_speed_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
+                            n, "tcp_speed", 1, true));
+    tcp_speed_pub_->msg_.data.resize(6);
+    tcp_force_pub_.reset(new RealtimePublisher<geometry_msgs::WrenchStamped>(
+                            n, "tcp_force", 1, true));
+    tcp_force_tmp.resize(6);
+    tcp_force_pub_->msg_.header.frame_id = "/base_link";
+    tcp_wrench_pub_.reset(new RealtimePublisher<geometry_msgs::WrenchStamped>(
+                            n, "tcp_wrench", 1, true));
+    tcp_wrench_tmp.resize(6);
+    tcp_wrench_pub_->msg_.header.frame_id = "/base_link";
+    tcp_pose_pub_.reset(new RealtimePublisher<std_msgs::Float64MultiArray>(
+                            n, "tcp_pose", 1, true));
+    tcp_pose_pub_->msg_.data.resize(6);
+
     force_scalar_pub_.reset(new RealtimePublisher<std_msgs::Float64>(
                           n, "tcp_force_scalar", 1, true));
+    tcp_power_pub_.reset(new RealtimePublisher<std_msgs::Float64>(
+                          n, "tcp_power", 1, true));
     tcp_payload_pub_.reset(new RealtimePublisher<std_msgs::Float64>(
                           n, "tcp_payload", 1, true));
+    power_pub_.reset(new RealtimePublisher<std_msgs::Float64>(
+                          n, "power", 1, true));
+
+    mode_id_rt_pub_.reset(new RealtimePublisher<std_msgs::Int32>(
+                          n, "robot_mode_id", 1, true));
+
     jnt_modes_rt_pub_.reset(new RealtimePublisher<std_msgs::Int32MultiArray>(
                             n, "joint_mode_ids", 1, true));
     jnt_modes_rt_pub_->msg_.data.resize(6);
@@ -67,10 +127,16 @@ public:
   void starting(const ros::Time& time) 
   { 
     first_update_ = true;
+    last_pub_time_ = ros::Time();
   }
 
   void update(const ros::Time& time, const ros::Duration& period) 
   {
+    if((time - last_pub_time_).toSec() < pub_period_)
+      return;
+    else
+      last_pub_time_ = time;
+
     cur_bool_states_[0] = config_hdl_.isPowerOnRobot();
     cur_bool_states_[1] = config_hdl_.isSecurityStopped();
     cur_bool_states_[2] = config_hdl_.isEmergencyStopped();
@@ -87,14 +153,96 @@ public:
       else mode_id_rt_pub_->unlock();
     }
 
+    if(act_q_pub_->trylock()) {
+      config_hdl_.getActualQ(act_q_pub_->msg_.data);
+      act_q_pub_->unlockAndPublish();
+    }
+    if(act_qd_pub_->trylock()) {
+      config_hdl_.getActualQD(act_qd_pub_->msg_.data);
+      act_qd_pub_->unlockAndPublish();
+    }
+    if(act_i_pub_->trylock()) {
+      config_hdl_.getActualI(act_i_pub_->msg_.data);
+      act_i_pub_->unlockAndPublish();
+    }
+    if(des_q_pub_->trylock()) {
+      config_hdl_.getDesiredQ(des_q_pub_->msg_.data);
+      des_q_pub_->unlockAndPublish();
+    }
+    if(des_qd_pub_->trylock()) {
+      config_hdl_.getDesiredQD(des_qd_pub_->msg_.data);
+      des_qd_pub_->unlockAndPublish();
+    }
+    if(des_qdd_pub_->trylock()) {
+      config_hdl_.getDesiredQDD(des_qdd_pub_->msg_.data);
+      des_qdd_pub_->unlockAndPublish();
+    }
+    if(des_i_pub_->trylock()) {
+      config_hdl_.getDesiredI(des_i_pub_->msg_.data);
+      des_i_pub_->unlockAndPublish();
+    }
+    if(acc_x_pub_->trylock()) {
+      config_hdl_.getAccelX(acc_x_pub_->msg_.data);
+      acc_x_pub_->unlockAndPublish();
+    }
+    if(acc_y_pub_->trylock()) {
+      config_hdl_.getAccelY(acc_y_pub_->msg_.data);
+      acc_y_pub_->unlockAndPublish();
+    }
+    if(acc_z_pub_->trylock()) {
+      config_hdl_.getAccelZ(acc_z_pub_->msg_.data);
+      acc_z_pub_->unlockAndPublish();
+    }
+    if(moment_des_pub_->trylock()) {
+      config_hdl_.getMomentDes(moment_des_pub_->msg_.data);
+      moment_des_pub_->unlockAndPublish();
+    }
+    if(tcp_speed_pub_->trylock()) {
+      config_hdl_.getTCPSpeed(tcp_speed_pub_->msg_.data);
+      tcp_speed_pub_->unlockAndPublish();
+    }
+    if(tcp_force_pub_->trylock()) {
+      config_hdl_.getTCPForce(tcp_force_tmp);
+      tcp_force_pub_->msg_.wrench.force.x = -tcp_force_tmp[0];
+      tcp_force_pub_->msg_.wrench.force.y = -tcp_force_tmp[1];
+      tcp_force_pub_->msg_.wrench.force.z = tcp_force_tmp[2];
+      tcp_force_pub_->msg_.wrench.torque.x = -tcp_force_tmp[3];
+      tcp_force_pub_->msg_.wrench.torque.y = -tcp_force_tmp[4];
+      tcp_force_pub_->msg_.wrench.torque.z = tcp_force_tmp[5];
+      tcp_force_pub_->msg_.header.stamp = time;
+      tcp_force_pub_->unlockAndPublish();
+    }
+    if(tcp_wrench_pub_->trylock()) {
+      config_hdl_.getTCPWrench(tcp_wrench_tmp);
+      tcp_wrench_pub_->msg_.wrench.force.x = -tcp_wrench_tmp[0];
+      tcp_wrench_pub_->msg_.wrench.force.y = -tcp_wrench_tmp[1];
+      tcp_wrench_pub_->msg_.wrench.force.z = tcp_wrench_tmp[2];
+      tcp_wrench_pub_->msg_.wrench.torque.x = -tcp_wrench_tmp[3];
+      tcp_wrench_pub_->msg_.wrench.torque.y = -tcp_wrench_tmp[4];
+      tcp_wrench_pub_->msg_.wrench.torque.z = tcp_wrench_tmp[5];
+      tcp_wrench_pub_->msg_.header.stamp = time;
+      tcp_wrench_pub_->unlockAndPublish();
+    }
+    if(tcp_pose_pub_->trylock()) {
+      config_hdl_.getTCPPose(tcp_pose_pub_->msg_.data);
+      tcp_pose_pub_->unlockAndPublish();
+    }
+
     if(tcp_payload_pub_->trylock()) {
       tcp_payload_pub_->msg_.data = config_hdl_.getTCPPayload();
       tcp_payload_pub_->unlockAndPublish();
     }
-
+    if(tcp_power_pub_->trylock()) {
+      tcp_power_pub_->msg_.data = config_hdl_.getTCPPower();
+      tcp_power_pub_->unlockAndPublish();
+    }
     if(force_scalar_pub_->trylock()) {
       force_scalar_pub_->msg_.data = config_hdl_.getTCPForceScalar();
       force_scalar_pub_->unlockAndPublish();
+    }
+    if(power_pub_->trylock()) {
+      power_pub_->msg_.data = config_hdl_.getPower();
+      power_pub_->unlockAndPublish();
     }
 
     if(jnt_modes_rt_pub_->trylock()) {
@@ -131,14 +279,38 @@ public:
 
 private:
   ur::URConfigHandle config_hdl_;
+
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > act_q_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > act_qd_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > act_i_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > des_q_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > des_qd_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > des_qdd_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > des_i_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > acc_x_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > acc_y_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > acc_z_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > moment_des_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > tcp_speed_pub_;
+  boost::shared_ptr<RealtimePublisher<geometry_msgs::WrenchStamped> > tcp_force_pub_;
+  boost::shared_ptr<RealtimePublisher<geometry_msgs::WrenchStamped> > tcp_wrench_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64MultiArray> > tcp_pose_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64> > force_scalar_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64> > tcp_power_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64> > tcp_payload_pub_;
+  boost::shared_ptr<RealtimePublisher<std_msgs::Float64> > power_pub_;
+
   boost::shared_ptr<RealtimePublisher<std_msgs::Int32> > mode_id_rt_pub_;
   boost::shared_ptr<RealtimePublisher<std_msgs::Int32MultiArray> > jnt_modes_rt_pub_;
   std::vector<boost::shared_ptr<RealtimePublisher<std_msgs::Bool> > > bool_rt_pubs_;
-  boost::shared_ptr<RealtimePublisher<std_msgs::Float64> > force_scalar_pub_;
-  boost::shared_ptr<RealtimePublisher<std_msgs::Float64> > tcp_payload_pub_;
   bool first_update_;
+  ros::Time last_pub_time_;
+  double pub_period_;
   std::vector<bool> cur_bool_states_;
   std::vector<int> cur_joint_ids_;
+
+  std::vector<double> tcp_force_tmp;
+  std::vector<double> tcp_wrench_tmp;
 };
 
 const char* JOINT_NAMES[6] = { 
