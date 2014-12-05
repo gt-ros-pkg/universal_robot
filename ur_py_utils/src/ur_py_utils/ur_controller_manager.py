@@ -161,24 +161,25 @@ class URControllerManager(ControllerManager):
     def start_joint_controller(self, start_ctrl_name):
         # determine all of the currently running controllers and
         # which mode the new controller is in
-        running_controllers = []
+        stop_controllers = []
         start_ctrl_mode = None
         joint_controllers, enable_controllers = self.get_controller_modes()
+        ctrl_is_running = False
         for mode, controller_list in enumerate(joint_controllers):
             for ctrl_name, is_running in controller_list:
                 if is_running:
-                    running_controllers.append(ctrl_name)
-                    if ctrl_name == start_ctrl_name:
-                        # rospy.logwarn('Starting controller already running, nothing will be done.')
-                        return True
-                else:
-                    if ctrl_name == start_ctrl_name:
-                        start_ctrl_mode = mode
+                    if ctrl_name != start_ctrl_name:
+                        stop_controllers.append(ctrl_name)
+                if ctrl_name == start_ctrl_name:
+                    start_ctrl_mode = mode
 
         if start_ctrl_mode == '':
             # there is no mode associated with this controller, thus we cannot
             # determine a mode conflict, so we should simply start the controller
-            return start_controller(start_ctrl_name)
+            if not ctrl_is_running:
+                return start_controller(start_ctrl_name)
+            else:
+                return True
 
         running_mode_ctrl_name = ''
         start_ctrl_mode_name = ''
@@ -191,12 +192,13 @@ class URControllerManager(ControllerManager):
             rospy.logerror('Cannot start the mode for this controller since it is not running')
             return False
         
-        stop_controllers = running_controllers
         start_controllers = [start_ctrl_name]
-        if running_mode_ctrl_name != '' and start_ctrl_mode_name != running_mode_ctrl_name:
-            # need to switch mode as well
-            stop_controllers.append(running_mode_ctrl_name)
+        if start_ctrl_mode_name != running_mode_ctrl_name:
+            # need to start the new mode
             start_controllers.append(start_ctrl_mode_name)
+            if running_mode_ctrl_name != '':
+                # need to stop the running mode
+                stop_controllers.append(running_mode_ctrl_name)
             
         strictness = SwitchControllerRequest.STRICT
         resp = self.switch_ctrl.call(SwitchControllerRequest(
