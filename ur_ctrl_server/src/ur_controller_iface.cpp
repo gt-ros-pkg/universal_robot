@@ -48,7 +48,7 @@ void URControllerInterface::sendAndReceiveMessages()
 
   if(ur_state.sequence - latest_cmd_seq >= CMD_TIMEOUT) {
     // printf("TIMEOUT\n");
-    connection->setConnected(false);
+    connection->setDisconnected();
   }
 }
 
