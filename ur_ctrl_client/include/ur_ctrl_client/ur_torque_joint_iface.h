@@ -34,7 +34,7 @@ public:
   URTorqueJointHandle(const JointStateHandle& js, 
                       double* command_torque, double* vel, double* security_torque, double* softness)
     : JointHandle(js, command_torque), 
-      vel_(vel), security_torque_(security_torque_), softness_(softness)
+      vel_(vel), security_torque_(security_torque), softness_(softness)
   {
     if (!vel_ || !security_torque_ || !softness_)
     {
